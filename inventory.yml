@@ -1,0 +1,10 @@
+homelab:
+  hosts:
+    homelab01:
+      ansible_host: 192.168.1.40
+    homelab02:
+      ansible_host: 192.168.1.42
+    homelab03:
+      ansible_host: 192.168.1.44
+    homelab04:
+      ansible_host: 192.168.1.45

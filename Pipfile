@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[pipenv]
+allow_prereleases = false
+disable_pip_input = true
+install_search_all_sources = true
+sort_pipfile = true
+
+[requires]
+python_version = "3.12"
+
+[packages]
+ansible = "*"
+ansible-core = "*"
+ansible-dev-tools = "*"
+ansible-lint = "*"
+
+[dev-packages]

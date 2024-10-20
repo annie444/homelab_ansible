@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.5/.schema/devbox.schema.json",
+  "packages": [
+    "python@3.12",
+    "pipenv@latest"
+  ],
+  "env": {
+    "PIPENV_CUSTOM_VENV_NAME": ".venv",
+    "PIPENV_DEFAULT_PYTHON_VERSION": "3.12",
+    "PIPENV_SHELL_FANCY": "1",
+    "PIPENV_SKIP_LOCK": "0",
+    "PIPENV_VENV_IN_PROJECT": "1",
+    "PIPENV_VIRTUALENV_COPIES": "1",
+    "PIPENV_YES": "1",
+    "USING_DEFAULT_PYTHON": "0"
+  },
+  "shell": {
+    "init_hook": [
+      "pipenv install",
+      "pipenv shell"
+    ]
+  }
+}
