@@ -17,5 +17,8 @@ ansible = "*"
 ansible-core = "*"
 ansible-dev-tools = "*"
 ansible-lint = "*"
+dnspython = "*"
+kubernetes = "*"
+pyyaml = "*"
 
 [dev-packages]

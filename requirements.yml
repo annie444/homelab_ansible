@@ -1,0 +1,7 @@
+collections:
+  - name: community.general
+    version: "*"
+  - name: ansible.posix
+    version: "*"
+  - name: kubernetes.core
+    version: "*"

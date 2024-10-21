@@ -1,0 +1,22 @@
+---
+- name: Apt preferences - no recommends and suggestions when installing packages (Debian)
+  ansible.builtin.template:
+    src: apt-only-essential-packages.j2
+    dest: "{{ base_package_vars_include_folder }}/{{ base_package_no_recommends_and_suggestions_filename }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - not base_package_install_recommends_and_suggestions
+    - ansible_os_family == "Debian"
+
+- name: Apt preferences - setting proxy for package manager (Debian)
+  ansible.builtin.template:
+    src: "{{ base_package_proxy_template }}.j2"
+    dest: "{{ base_package_vars_include_folder }}/{{ base_package_proxy_filename }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - base_package_proxy_enable
+    - ansible_os_family == "Debian"

@@ -1,0 +1,46 @@
+# {{ ansible_managed }}
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+#
+# Entries in this file show the compile time defaults.
+# You can change settings by editing this file.
+# Defaults can be restored by simply deleting this file.
+#
+# See chronyd.conf(5) for details.
+
+{% if "pool" in base_ntp_systemd_timesyncd_ntp_primary -%}
+pool
+{%- else -%}
+server
+{%- endif %} {{ base_ntp_systemd_timesyncd_ntp_primary }} iburst 
+{%- if base_ntp_systemd_timesyncd_rootdistancemaxsec is defined and base_ntp_systemd_timesyncd_rootdistancemaxsec|length > 0 %} 
+ maxdelay {{ base_ntp_systemd_timesyncd_rootdistancemaxsec }}
+{% endif -%}
+{%- if base_ntp_systemd_timesyncd_pollintervalminsec is defined and base_ntp_systemd_timesyncd_pollintervalminsec|length > 0 %}
+ minpoll {{ base_ntp_systemd_timesyncd_pollintervalminsec }}
+{% endif -%}
+{%- if base_ntp_systemd_timesyncd_pollintervalmaxsec is defined and base_ntp_systemd_timesyncd_pollintervalmaxsec|length > 0 %}
+maxpoll {{ base_ntp_systemd_timesyncd_pollintervalmaxsec }}
+{% endif -%}
+{% if base_ntp_systemd_timesyncd_ntp_fallback is defined and base_ntp_systemd_timesyncd_ntp_fallback|length > 0 %}
+server {{ base_ntp_systemd_timesyncd_ntp_fallback }} iburst
+{%- if base_ntp_systemd_timesyncd_rootdistancemaxsec is defined and base_ntp_systemd_timesyncd_rootdistancemaxsec|length > 0 %} 
+ maxdelay {{ base_ntp_systemd_timesyncd_rootdistancemaxsec }}
+{% endif -%}
+{%- if base_ntp_systemd_timesyncd_pollintervalminsec is defined and base_ntp_systemd_timesyncd_pollintervalminsec|length > 0 %}
+ minpoll {{ base_ntp_systemd_timesyncd_pollintervalminsec }}
+{% endif -%}
+{%- if base_ntp_systemd_timesyncd_pollintervalmaxsec is defined and base_ntp_systemd_timesyncd_pollintervalmaxsec|length > 0 %}
+maxpoll {{ base_ntp_systemd_timesyncd_pollintervalmaxsec }}
+{% endif -%}
+{% endif %}
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+keyfile /etc/chrony.keys
+leapsectz right/UTC
+logdir /var/log/chrony

@@ -1,0 +1,15 @@
+// {{ ansible_managed }}
+Acquire {
+    http {
+        Proxy "{{ base_package_proxy_address }}";
+{% if base_package_proxy_direct is defined and base_package_proxy_direct|length > 0 %}
+{% if base_package_proxy_direct | type_debug == "list" %}
+{% for proxy_direct_list in base_package_proxy_direct %}
+        Proxy::{{ proxy_direct_list }} "DIRECT";
+{% endfor %}
+{% else %}
+        Proxy::{{ base_package_proxy_direct }} "DIRECT";
+{% endif %}
+{% endif %}
+    };
+}

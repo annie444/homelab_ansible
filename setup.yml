@@ -4,9 +4,267 @@
   become: true
   gather_facts: true
   roles:
-    - role: utils
+    - role: base
       vars:
+        base_ipv4_enable: true
+        base_ipv6_enable: true
+        base_sysctl_config_enable: true
+        base_sysctl_path: /etc/sysctl.d/99-ansible.conf
+        base_sysctl_ignoreerrors: false
+        base_sysctl_key_value:
+          - name: IPv4 Forwarding
+            key: net.ipv4.conf.all.forwarding
+            value: 1
+            state: present
+          - name: Increase randomized space
+            key: kernel.randomize_va_space
+            value: 2
+            state: present
+          - name: Only allow root to configure the kernel
+            key: kernel.dmesg_restrict
+            value: 1
+            state: present
+          - name: Set perfomance monitoring
+            key: kernel.perf_event_paranoid
+            value: 2
+            state: present
+          - name: Enable SYN cookies
+            key: net.ipv4.tcp_syncookies
+            value: 1
+            state: present
+          - name: Log strange events
+            key: net.ipv4.conf.default.log_martians
+            value: 1
+            state: present
+          - name: Log all strange network events
+            key: net.ipv4.conf.all.log_martians
+            value: 1
+            state: present
+          - name: Check source routes 
+            key: net.ipv4.conf.all.accept_source_route
+            value: 0
+            state: present
+          - name: Check source routes
+            key: net.ipv4.conf.default.accept_source_route
+            value: 0
+            state: present
+          - name: Check source routes
+            key: net.ipv6.conf.all.accept_source_route
+            value: 0
+            state: present
+          - name: Check source routes 
+            key: net.ipv6.conf.default.accept_source_route
+            value: 0
+            state: present
+          - name: Disable ICMP
+            key: net.ipv4.icmp_echo_ignore_broadcasts
+            value: 1
+            state: present
+          - name: Disable ICMP
+            key: net.ipv4.icmp_echo_ignore_all
+            value: 1
+            state: present
+          - name: Disable ICMP redirects 
+            key: net.ipv4.conf.default.accept_redirects
+            value: 0
+            state: present
+          - name: Disable ICMP redirects
+            key: net.ipv4.conf.all.accept_redirects
+            value: 0
+            state: present
+          - name: Disable ICMP redirects
+            key: net.ipv6.conf.all.accept_redirects
+            value: 0
+            state: present
+          - name: Disable ICMP redirects
+            key: net.ipv6.conf.default.accept_redirects
+            value: 0
+            state: present
+          - name: Disable ICMP redirects
+            key: net.ipv4.conf.default.send_redirects
+            value: 0
+            state: present
+          - name: Disable ICMP redirects
+            key: net.ipv4.conf.all.send_redirects
+            value: 0
+            state: present
+        base_debug: false
+        base_manage_hosts_file: false
+        base_manage_hostname: true
+        base_check_reverserecord: true
+        base_dns_config_enable: true
+        base_dns_nameservers:
+            - 8.8.4.4 
+            - 9.9.9.9
+            - 2001:4860:4860::8888
+        base_dns_nameservers_fallback:
+            - 1.1.1.1
+        base_dns_searchdomains: "jpeg.gay"
+        base_dns_resolver_daemon: systemd-resolved
+        base_dns_template_systemd_resolved_package_name: systemd-resolved
+        base_dns_systemd_resolved_servicename: systemd-resolved.service
+        base_ntp_config_enable: true
+        base_ntp_daemon: chronyd
+        base_ntp_systemd_timesyncd_package_name: chronyd
+        base_ntp_systemd_timesyncd_config_target: /etc/chrony.conf
+        base_ntp_systemd_timesyncd_servicename: chronyd.service
+        base_ntp_systemd_timesyncd_template: chronyd.conf.j2
+        base_ntp_systemd_timesyncd_ntp_primary: pool.ntp.org
+        base_ntp_systemd_timesyncd_rootdistancemaxsec: 5
+        base_ntp_systemd_timesyncd_pollintervalminsec: 5
+        base_ntp_systemd_timesyncd_pollintervalmaxsec: 11
+        base_package_proxy_enable: false
+        base_package_install_recommends_and_suggestions: true
+        base_package_install_default_enable: true
+        base_package_defaults_debian:
+          - bzip2
+          - curl
+          - dnsutils
+          - ethtool
+          - gpg
+          - gpg-agent
+          - htop
+          - iftop
+          - iotop
+          - iputils-ping,
+          - less
+          - lsof
+          - lsscsi
+          - mc
+          - net-tools
+          - pciutils
+          - psmisc
+          - rsync
+          - sudo
+          - sysstat
+          - traceroute
+          - unzip
+        base_package_defaults_redhat:
+          - bind-utils
+          - bzip2
+          - curl
+          - epel-release
+          - ethtool
+          - gpg
+          - iotop
+          - iputils
+          - less,
+          - lsof
+          - net-tools
+          - pciutils
+          - rsync
+          - sudo
+          - sysstat
+          - tcpdump
+          - traceroute
+          - unzip
+        base_package_extra_baremetal_enable: true
+        base_package_baremetal_debian:
+          - ethtool
+          - memtest86+
+          - smartmontools
+        base_package_baremetal_redhat:
+          - ethtool
+          - memtest86+
+          - smartmontools
+        base_package_upgrade_enable: true
+        base_package_guest_agent_enable: false
+        base_sshd_config_enable: true
+        base_openssh_use_template: true
+        base_openssh_sshd_opts: -o TCPKeepAlive=no -o ClientAliveInterval=180 -o DebianBanner=no
+        base_openssh_include_pattern: /etc/ssh/sshd_config.d/*.conf
+        base_openssh_port: 22
+        base_openssh_gen_keys: true
+        base_openssh_force_gen_keys: true
+        base_openssh_host_key:
+          - /etc/ssh/ssh_host_rsa_key
+          - /etc/ssh/ssh_host_ecdsa_key
+          - /etc/ssh/ssh_host_ed25519_key
+        base_openssh_key_types:
+          - rsa
+          - ecdsa
+          - ed25519
+        base_openssh_skip_include: false
+        base_openssh_permitrootlogin: false
+        base_openssh_tcpkeepalive: false
+        base_openssh_sshrc_enable: true
+        base_openssh_pubkey_used_logging: true
+        base_openssh_send_mail_on_login: true
+        base_openssh_send_mail_to: root
+        base_root_password_hash: 
+        base_root_ssh_key_file_name: .ssh/id_ed25519
+        base_usercreate_config_enable: true
+        base_users_remove_userdata_when_state_absent: false
+        :
+        base_default_editor: vim
+        base_users_optional_tasks_enable: true
+        base_bashrc_configure: true
+        base_vimrc_configure: true
+        base_nanorc_configure: true
+        base_htoprc_configure: true
+        base_journald_config_enable: true
+        base_journald_compress: enabled
+        base_journald_seal: true
+        base_journald_splitMode: uid
+        base_journald_syncintervalsec: 5m
+        base_journald_ratelimitintervalsec: 30s
+        base_journald_ratelimitburst: 10000
+        base_journald_systemmaxuse: 100G
+        base_journald_systemmaxfilesize: 10G
+        base_journald_systemmaxfiles: 100
+        base_journald_forwardtosyslog: true
+        base_journald_audit: true
+        base_ca_config_enable: true
+        base_ca_files:
+          description: List of CA-files (PEM-format) to copy into the target and update trust
+          required: false
+          type: list
+          elements: str
+        base_openssh_clientaliveinterval: 180
+        base_userlist_local:
+          - user: annie
+            password: "$6$olCnBZ0jQiGUOyd5$Iual2nFwPiFw.70i7sH4JZVw6xGsn8CZZvw8hPHARSTd8tP7WqwHu6hFyc2K2H7ooDbIWEPuY2M18KlChee16/"
+            sudo_pass: true
+            sudo_nopass: true
+            uid: 1001
+            group_append: true
+            group_primary:
+              - users
+            shell: /bin/bash
+            generate_ssh_key: true
+            ssh_key_type: ed25519
+            default_editor: vim
+            update_password: always
+            state: present
+            system: false
+            create_home: true
+            skeleton: true
+        base_grouplist_local:
+          - groupname: users
+            gid: 1001
+            state: present
+            system: false
 
+    - role: harden
+
+    - role: utils
 
     - role: kubernetes
 
+
+  pre_tasks:
+    - name: Install python for Ansible (Debian only)
+      when: ansible_os_family == "Debian"
+      ansible.builtin.raw: test -e /usr/bin/python3 || (apt-get -y update && apt install -y python3)
+      register: output
+      changed_when: output.stdout | length > 0
+
+    - name: Install python for Ansible (Redhat only)
+      when: ansible_os_family == "Redhat"
+      ansible.builtin.raw: test -e /usr/bin/python3 || (dnf -y update && dnf install -y python3)
+      register: output
+      changed_when: output.stdout | length > 0
+
+  tasks:
+    - name: Gathering Facts now
+      ansible.builtin.setup:

@@ -1,0 +1,97 @@
+---
+- name: Set root Passwort
+  ansible.builtin.user:
+    name: root
+    password: '{{ base_root_password_hash | d("*") }}'
+  tags:
+    - userlocal
+  when:
+    - base_root_password_hash is defined
+
+- name: Bashrc for root
+  ansible.builtin.template:
+    src: "{{ base_bashrc_template }}"
+    dest: "/root/.bashrc"
+    mode: '0600'
+  when:
+    - base_bashrc_configure
+  tags:
+    - bash
+
+- name: Configure vim
+  ansible.builtin.template:
+    src: "{{ base_vimrc_template }}"
+    dest: "/root/.vimrc"
+    mode: '0600'
+  when:
+    - base_vimrc_configure
+    - base_default_editor == "vim"
+  tags:
+    - vim
+
+- name: Configure nano
+  ansible.builtin.template:
+    src: "{{ base_nanorc_template }}"
+    dest: "/root/.nanorc"
+    mode: '0600'
+  when:
+    - base_nanorc_configure
+    - base_default_editor == "nano"
+  tags:
+    - nano
+
+- name: Create .ssh dir for root
+  ansible.builtin.file:
+    path: "/root/.ssh"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0700'
+  tags:
+    - ssh
+    - userlocal
+
+- name: Template SSH private key for root
+  ansible.builtin.copy:
+    content: "{{ base_root_ssh_key_file_content }}"
+    dest: "/root/{{ base_root_ssh_key_file_name }}"
+    owner: "root"
+    group: "root"
+    mode: '0600'
+  no_log: true
+  when:
+    - base_root_ssh_key_file_content is defined
+    - base_root_ssh_key_file_name is defined
+  tags:
+    - pubkey
+    - ssh
+
+- name: Copy pubkeys from file to authorized_keys (for root)
+  ansible.builtin.template:
+    src: "{{ base_root_authorizedkeys }}"
+    dest: "/root/.ssh/authorized_keys"
+    owner: root
+    group: root
+    mode: '0600'
+  when:
+    - base_root_authorizedkeys is defined
+  tags:
+    - pubkey
+    - ssh
+    - userlocal
+
+- name: Add or remove public keys in authorized_hosts (for root)
+  ansible.posix.authorized_key:
+    user: "{{ item.0.username }}"
+    state: "{{ item.0.state | default('present') }}"
+    key: "{{ item.1 }}"
+    key_options: "{{ item.0.key_options | default(omit) }}"
+    exclusive: "{{ item.0.exclusive | default(omit) }}"
+    comment: "{{ item.0.comment | default(omit) }}"
+  when:
+    - item.0.username == 'root'
+  loop: "{{ base_authorizedkeys | subelements('pubkeys', 'skip_missing=true') }}"
+  tags:
+    - pubkey
+    - ssh
+    - userlocal

@@ -1,0 +1,442 @@
+---
+# defaults file for base
+
+# enable v4 or v6-support:
+base_ipv4_enable: true
+base_ipv6_enable: true
+
+# print additional debug output:
+base_debug: false
+
+# SYSCTL Config ===
+base_sysctl_config_enable: true
+# ansible sysctl module: https://docs.ansible.com/ansible/latest/collections/ansible/posix/sysctl_module.html
+
+# valid attributes in base_sysctl_key_value dictionary:
+# name: useful description
+# key: configkey
+# value: its_value
+# state: present|absent (default: present)
+
+#Example: Enable v4 + v6 routing:
+#
+#base_sysctl_key_value:
+#  - name: IPv4 Forwarding
+#    key: net.ipv4.conf.all.forwarding
+#    value: 1
+#    state: present
+#  - name: IPv6 Forwarding
+#    key: net.ipv6.conf.all.forwarding
+#    value: 1
+
+# optional vars:
+# base_sysctl_path: "/etc/sysctl.d/99-my-settings" -> set a path for the config (module default is: /etc/sysctl.conf)
+# base_sysctl_ignoreerrors: true|false (default: false) -> use this option to ignore errors about unknown keys.
+
+# GRUB ===
+base_grub_config_enable: false
+# example: switch to eth0 (kvm has ens3)
+# base_grub_commandline: "net.ifnames=0 biosdevname=0"
+# ! Centos needs full line, so you`ll need to include all options (not just your added options like on debian-family)
+base_grub_default_file: "/etc/default/grub"
+
+# hosts ===
+base_manage_hosts_file: false
+base_manage_hostname: true
+base_check_a_record: true
+base_check_aaaa_record: true
+# hostname_a_record_not_default_ip_ignore: true
+hostname_a_record_not_default_ip_ignore: false
+base_check_reverserecord: true
+hostname_reverserecord_not_default_ip_ignore: true
+
+# override hosts-template (if needed):
+base_manage_hosts_template: "hosts.j2"
+
+
+# DNS ===
+base_dns_config_enable: true
+# most glibc-clients cannot user more than 3 nameserver, when v6 only add more v6-servers
+base_dns_nameservers:
+  - 8.8.4.4
+  - 9.9.9.9
+  - 2001:4860:4860::8888
+
+# v6only (google, quad9, hetzner) i.e. via extra group "v6only": group_vars/v6only.yml
+#base_dns_nameservers:
+#  - 2001:4860:4860::8888
+#  - 2620:fe::fe
+#  - 2a01:4ff:ff00::add:2
+
+# systemd_resolved only:
+base_dns_nameservers_fallback:
+  - 1.1.1.1
+
+# DNS search-domain(s):
+# base_dns_searchdomains: "domain1.tld domain2.tld"
+base_dns_template_resolv_conf: "resolv.conf.j2"
+
+# which dns-resolver to use? choices: glibc|systemd-resolved
+base_dns_resolver_daemon: "glibc"
+
+base_dns_systemd_resolved_config_template: "systemd-resolved.conf.j2"
+base_dns_systemd_resolved_config_target: "/etc/systemd/resolved.conf"
+base_dns_systemd_resolved_config_owner: "systemd-resolve"
+base_dns_systemd_resolved_config_group: "systemd-resolve"
+base_dns_systemd_resolved_servicename: "systemd-resolved.service"
+
+# remove /etc/resolv.conf-symlink if glibc is used:
+base_dns_resolv_conf_link_remove: false
+
+
+# systemd-timesyncd ====
+base_ntp_config_enable: true
+base_ntp_daemon: "systemd-timesyncd"
+base_ntp_systemd_timesyncd_package_name: "systemd-timesyncd"
+base_ntp_systemd_timesyncd_config_target: "/etc/systemd/timesyncd.conf"
+base_ntp_systemd_timesyncd_config_owner: "root"
+base_ntp_systemd_timesyncd_config_group: "root"
+base_ntp_systemd_timesyncd_servicename: "systemd-timesyncd.service"
+base_ntp_systemd_timesyncd_template: "systemd-timesyncd.conf.j2"
+# see https://www.freedesktop.org/software/systemd/man/timesyncd.conf.html for information about config:
+base_ntp_systemd_timesyncd_ntp_primary: "pool.ntp.org"
+base_ntp_systemd_timesyncd_ntp_fallback: "0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org"
+# base_ntp_systemd_timesyncd_rootdistancemaxsec: 5
+# base_ntp_systemd_timesyncd_pollintervalminsec: 32
+# base_ntp_systemd_timesyncd_pollintervalmaxsec: 2048
+
+# define system proxy ===
+
+base_proxy_config_enable: true
+# base_proxy_http_server: ""
+# you can use it for all protocolls:
+# base_proxy_https_server: "{{ base_proxy_http_server }}"
+# base_proxy_ftp_server: "{{ base_proxy_http_server }}"
+# base_no_proxy: ""
+base_proxy_config: "/etc/environment"
+
+
+# APT preferences: ===
+
+# Proxy Server for apt?
+base_package_proxy_enable: false
+base_package_proxy_template: "apt-proxy-server.yml"
+base_package_proxy_filename: "02proxy-settings"
+# base_package_proxy_address: "http://proxy.example.com:8080"
+# go directly to internal package source for "internal.package.source":
+# base_package_proxy_direct: "internal.package.source"
+
+# install only needed (NOT recommends and suggestions):
+base_package_install_recommends_and_suggestions: true
+# does not work on RedHat (filename needs to follow a specific value)
+base_package_no_recommends_and_suggestions_filename: "00-no-recommends-and-suggestions"
+
+
+# PACKAGE-SOURCES ===
+base_package_source_enable: true
+
+# FIXME will {{ ansible_distribution_release }} work?
+
+#base_packagesources:
+#  repotype: deb|rpm (required)
+#  filename: "reponame.list"
+#  deb_line: "deb http://url.domain.tld/deb/ distribution main
+#  gpg_url: "https://url.domain.tld/gpg.key"
+#  pgp_id: "HEX-ID of GPG-Key" -> required-for-absent
+#  validate_certs: yes|no (default: yes)
+#  state: absent|present (default: present)
+
+# Example:
+#base_packagesources:
+#- name: sury-php
+#  repotype: deb
+#  filename: "sury-php.list"
+#  deb_line: "deb https://packages.sury.org/php/ {{ ansible_distribution_release }} main"
+#  gpg_url: "https://packages.sury.org/php/apt.gpg"
+#  pgp_id: "15058500A0235D97F5D10063B188E2B695BD4743"
+#  state: present
+
+
+# PACKAGES Install defaults ===
+base_package_install_default_enable: true
+# update the apt cache if it is older than the cache_valid_time (in seconds):
+base_package_cache_valid_time: 86400
+base_package_defaults_debian:
+  - bzip2
+  - curl
+  - dnsutils
+  - ethtool
+  - gpg
+  - gpg-agent
+  - htop
+  - iftop
+  - iotop
+  - iputils-ping
+  - less
+  - lsof
+  - lsscsi
+  - mc
+  - net-tools
+  - pciutils
+  - psmisc
+  - rsync
+  - sudo
+  - sysstat
+  - traceroute
+  - unzip
+
+base_package_defaults_redhat:
+  - bind-utils
+  - bzip2
+  - curl
+  - epel-release
+  - ethtool
+  - gpg
+  - iotop
+  - iputils
+  - less
+  - lsof
+  - net-tools
+  - pciutils
+  - rsync
+  - sudo
+  - sysstat
+  - traceroute
+  - unzip
+
+# some tools are only necessary on non-virtualized hosts, like raid tools etc.:
+base_package_extra_baremetal_enable: true
+base_package_baremetal_debian:
+  - ethtool
+  - memtest86+
+  - smartmontools
+
+base_package_baremetal_redhat:
+  - ethtool
+  - memtest86+
+  - smartmontools
+
+base_package_guest_agent_enable: true
+base_package_guest_agent_qemu_package: "qemu-guest-agent"
+base_package_guest_agent_qemu_service: "qemu-guest-agent"
+base_package_guest_agent_vmware_package: "open-vm-tools"
+base_package_guest_agent_vmware_service: "open-vm-tools"
+
+base_package_unwanted_packages_remove_enabled: false
+base_package_unwanted_packages_debian: []
+base_package_unwanted_packages_redhat: []
+
+# Packageupgrades ===
+base_package_upgrade_enable: true
+
+# SSHD =================
+base_sshd_config_enable: true
+
+base_openssh_use_template: true
+# OR (and) you can configure options to be included in /etc/default/ssh
+# base_openssh_sshd_opts: "-o TCPKeepAlive=no -o ClientAliveInterval=180 -o DebianBanner=no"
+
+base_openssh_include_pattern: "/etc/ssh/sshd_config.d/*.conf"
+
+# base_openssh_port: 22
+
+# enable ssh_key generation in general:
+base_openssh_gen_keys: false
+# force regeneration of host_keys (this is usually done on openssh-install), useful for cloned systems (needs "base_openssh_gen_keys: True" too!) yes|no:
+base_openssh_force_gen_keys: false
+
+base_openssh_host_key:
+  - /etc/ssh/ssh_host_rsa_key
+  - /etc/ssh/ssh_host_ecdsa_key
+  - /etc/ssh/ssh_host_ed25519_key
+base_openssh_key_types:
+  - rsa
+  - ecdsa
+  - ed25519
+
+base_openssh_template_default: "sshd_default_template.j2"
+base_openssh_template_sshd: "sshd_template.j2"
+base_openssh_skip_include: false
+base_openssh_include_not_available: false
+
+# base_openssh_permitrootlogin: yes|no|prohibit-password|forced-commands-only (default: not set)
+
+base_openssh_tcpkeepalive: "yes"
+# recommending the following two lines (ClientAliveInterval is more stable and secure than "TCPKeepAlive yes"):
+#   base_openssh_tcpkeepalive: no
+#   base_openssh_clientaliveinterval: 180
+
+base_openssh_permituserenvironment: false
+base_openssh_sshrc_enable: false
+base_openssh_sshrc_template: "sshrc.j2"
+# enables logging which pubkey was used, see "sshrc.j2" for more information.
+base_openssh_pubkey_used_logging: false
+base_openssh_send_mail_on_login: false
+base_openssh_send_mail_to: root
+
+# USER root ================================
+# define file-path with pubkeys for user root (optional):
+# base_root_authorizedkeys: "local/path/to/authorized-keyfile"
+# define password for root (optional):
+# base_root_password_hash: "$hashed_password"
+
+#base_root_ssh_key_file_name: ".ssh/id_ed25519"
+#base_root_ssh_key_file_content: |+
+#  -----BEGIN OPENSSH PRIVATE KEY-----
+#  (contents)
+#  -----END OPENSSH PRIVATE KEY-----
+
+
+# USER management ===========================
+base_usercreate_config_enable: true
+
+# see https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
+
+# valid attributes in base_userlist_local dictionary:
+# name: -> username # REQUIRED
+# group_primary: -> primary group
+# group_secondary: -> secondary/supplemental group(s) membership(s)
+# group_append: (false, true) -> true: append group(s), false: set group(s) exactly as given
+# conditional_hostgroup: group -> only create the user when this ansible-group membership is present (from inventory)
+# home: -> home-directory
+# uid: user id
+# state: "present" or "absent"
+# comment: comment for this user
+# password: Optionally set the user's password to this crypted value
+# update_password: "always" will update passwords if they differ. "on_create" (default) will only set the password for newly created users.
+# system: "no" (UID below 1000) or "yes" (UID > 1000)
+# shell: user shell, example: "/bin/bash"
+# create_home: # whether or not to create the home directory. yes (default)|no
+# move_home: yes|no (default)
+# skeleton: optionally set a home skeleton directory (default: empty), requires create_home
+# expires: epoch time (default: empty), negativ time to remove (since ansible 2.6)
+# remove: no (default)|yes
+# force: no (default)|yes
+# non_unique: no (default)|yes
+# generate_ssh_key: no (default)|yes
+# ssh_authorizedkeys_file: "local/path/to/authorized-keyfile" use to upload authorizedkeys.
+# ssh_key_bits: integer, default set by ssh-keygen, 4096 for rsa recommended
+# ssh_key_comment: text
+# ssh_key_file_content: jinja-multine-string (contains the private key, see "base_root_ssh_key_file_content" as example), if provided ssh_key_file_name must be defined too!
+# ssh_key_file_name: specify the filename for SSH private key (defaults to ".ssh/id_rsa" but ".ssh/id_ed25519" or any other value is possible). hint: generate pubkey from private key with (rsa): ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub )
+# ssh_key_passphrase: string
+# ssh_key_type: rsa (default)|ed25519 specify type of SSH-Key (to generate it)
+# sudofilename: optional filename for sudoers-file (defaults to username)
+# sudo_pass: False  # False|True when sudo group is not wanted
+# sudo_nopass: True|False (default)
+# sudo_commands: "optional/sudo/command/allowed/for/sudo"
+# default_editor: set your favorite editor here, default is emty
+
+# EXAMPLE:
+#base_userlist_local:
+#  - username: alice
+#    password: $6$hash_of_alice_password   # to create a disabled account: '!' or '*' (Linux) or '*************' (OpenBSD)
+#    sudo_nopass: True
+#    # only add user when host has this group:
+#    conditional_hostgroup: hosts_with_alice
+#  - username: bob
+#    password: $6$bob_hash
+#    shell: /bin/sh
+#    group: bob, additionalgroup
+#    sudo_group: True
+#  - username: normaluser
+#    password: $6$normaluser_hash
+#    shell: /bin/bash
+
+base_authorizedkeys: []
+
+# minimal example (see README.md for more details)
+#base_authorizedkeys:
+#  - username: root
+#    state: present
+#    pubkeys:
+#      - pub1
+#      - pub2
+
+base_default_editor: vim
+
+base_users_optional_tasks_enable: false
+base_users_optional_tasks_template: "optional-tasks-for-users.yml"
+
+base_bashrc_configure: true
+base_bashrc_template: "bashrc.j2"
+
+base_vimrc_configure: true
+base_vimrc_template: "vimrc.j2"
+
+base_nanorc_configure: true
+base_nanorc_template: "nanorc.j2"
+
+base_htoprc_configure: true
+base_htoprc_template: "htoprc.j2"
+
+
+# GROUP Creation =================
+base_groupcreate_local: true
+
+# valid attributes in base_grouplist_local dictionary:
+# groupname: "Groupname" (required!)
+# gid: Number
+# state: absent|present (default)
+# non_unique: no (default)|yes
+# system: "no" (GID below 1000; default) or "yes" (GID > 1000)
+# sudofilename: optional filename for sudoers-file (defaults to groupname)
+# sudo_pass: False  # False|True when sudo group is not wanted
+# sudo_nopass: True|False (default)
+
+# Example for group "admins" (sudo without password):
+#base_grouplist_local:
+#- groupname: admins
+#  sudo_nopass: True
+
+
+# Machine-id ===============
+# generate a random machine-id (useful for cloned systems):
+# attention: changing the machine-id can have unwanted consequences, examples:
+# https://wiki.debian.org/MachineId
+# https://unix.stackexchange.com/questions/191313/why-is-my-systemd-journal-not-persistent-across-reboots
+base_machine_id_regenerate: false
+base_machine_id_filename: "/etc/machine-id"
+
+# Journald =================
+
+base_journald_config_enable: true
+base_journald_template: "journald.conf.j2"
+# see journald.conf(5) for details or https://www.freedesktop.org/software/systemd/man/journald.conf.html
+#base_journald_storage: auto
+#base_journald_compress: "yes"
+#base_journald_seal: "yes"
+#base_journald_splitMode: uid
+#base_journald_syncintervalsec: 5m
+#base_journald_ratelimitintervalsec: 30s
+#base_journald_ratelimitburst: 10000
+#base_journald_systemmaxuse:
+#base_journald_systemkeepfree:
+#base_journald_systemmaxfilesize:
+#base_journald_systemmaxfiles: 100
+#base_journald_runtimemaxuse:
+#base_journald_runtimekeepfree:
+#base_journald_runtimemaxfileSize:
+#base_journald_runtimemaxfiles: 100
+#base_journald_maxretentionsec:
+#base_journald_maxfilesec: 1month
+#base_journald_forwardtosyslog: "yes"
+#base_journald_forwardtokmsg: "no"
+#base_journald_forwardtoconsole: "no"
+#base_journald_forwardtowall: "yes"
+#base_journald_ttypath: /dev/console
+#base_journald_maxlevelstore: debug
+#base_journald_maxlevelsyslog: debug
+#base_journald_maxlevelkmsg: notice
+#base_journald_maxlevelconsole: info
+#base_journald_maxlevelwall: emerg
+#base_journald_linemax: 48K
+#base_journald_readkmsg: "yes"
+#base_journald_audit: "no"
+
+# CA trusted (SSL/TLS) ===
+base_ca_config_enable: false
+# define CA-files, Example:
+#base_ca_files:
+#- ca1.crt
+#- ca2.crt

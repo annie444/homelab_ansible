@@ -1,0 +1,44 @@
+---
+# handlers file for base
+- name: Restart SSHD
+  ansible.builtin.service:
+    name: "{{ baserole_openssh_servicename }}"
+    state: restarted
+
+- name: Manage Qemu Guest Agent
+  ansible.builtin.service:
+    name: "{{ baserole_package_guest_agent_qemu_service }}"
+    state: restarted
+    enabled: true
+
+- name: Manage OpenVM Tools
+  ansible.builtin.service:
+    name: "{{ baserole_package_guest_agent_vmware_service }}"
+    state: restarted
+    enabled: true
+
+- name: Restart systemd-resolved
+  ansible.builtin.service:
+    name: "{{ baserole_dns_systemd_resolved_servicename }}"
+    state: restarted
+
+- name: Restart systemd-timesyncd
+  ansible.builtin.systemd:
+    name: "{{ baserole_ntp_systemd_timesyncd_servicename }}"
+    state: restarted
+
+- name: Enable systemd-timesyncd
+  ansible.builtin.service:
+    name: "{{ baserole_ntp_systemd_timesyncd_servicename }}"
+    enabled: true
+
+- name: Update Grub Config
+  ansible.builtin.command: update-grub
+
+- name: Restart journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+
+- name: Update trusted CA
+  ansible.builtin.command: "{{ baserole_ca_update_command }}"

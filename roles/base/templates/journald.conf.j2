@@ -1,0 +1,166 @@
+# {{ ansible_managed }}
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+#
+# Entries in this file show the compile time defaults.
+# You can change settings by editing this file.
+# Defaults can be restored by simply deleting this file.
+#
+# See journald.conf(5) for details.
+# web version: https://www.freedesktop.org/software/systemd/man/journald.conf.html
+
+[Journal]
+{% if base_journald_storage is defined %}
+Storage={{ base_journald_storage }}
+{% else %}
+#Storage=auto
+{% endif %}
+{% if base_journald_compress is defined %}
+Compress={{ base_journald_compress|lower }}
+{% else %}
+#Compress=yes
+{% endif %}
+{% if base_journald_seal is defined %}
+Seal={{ base_journald_seal|lower }}
+{% else %}
+#Seal=yes
+{% endif %}
+{% if base_journald_splitMode is defined %}
+SplitMode={{ base_journald_splitMode }}
+{% else %}
+#SplitMode=uid
+{% endif %}
+{% if base_journald_syncintervalsec is defined %}
+SyncIntervalSec={{ base_journald_syncintervalsec }}
+{% else %}
+#SyncIntervalSec=5m
+{% endif %}
+{% if base_journald_ratelimitintervalsec is defined %}
+RateLimitIntervalSec={{ base_journald_ratelimitintervalsec }}
+{% else %}
+#RateLimitIntervalSec=30s
+{% endif %}
+{% if base_journald_ratelimitburst is defined %}
+RateLimitBurst={{ base_journald_ratelimitburst }}
+{% else %}
+#RateLimitBurst=10000
+{% endif %}
+{% if base_journald_systemmaxuse is defined %}
+SystemMaxUse={{ base_journald_systemmaxuse }}
+{% else %}
+#SystemMaxUse=
+{% endif %}
+{% if base_journald_systemkeepfree is defined %}
+SystemKeepFree={{ base_journald_systemkeepfree }}
+{% else %}
+#SystemKeepFree=
+{% endif %}
+{% if base_journald_systemmaxfilesize is defined %}
+SystemMaxFileSize={{ base_journald_systemmaxfilesize }}
+{% else %}
+#SystemMaxFileSize=
+{% endif %}
+{% if base_journald_systemmaxfiles is defined %}
+SystemMaxFiles={{ base_journald_systemmaxfiles }}
+{% else %}
+#SystemMaxFiles=100
+{% endif %}
+{% if base_journald_runtimemaxuse is defined %}
+RuntimeMaxUse={{ base_journald_runtimemaxuse }}
+{% else %}
+#RuntimeMaxUse=
+{% endif %}
+{% if base_journald_runtimekeepfree is defined %}
+RuntimeKeepFree={{ base_journald_runtimekeepfree }}
+{% else %}
+#RuntimeKeepFree=
+{% endif %}
+{% if base_journald_runtimemaxfileSize is defined %}
+RuntimeMaxFileSize={{ base_journald_runtimemaxfileSize }}
+{% else %}
+#RuntimeMaxFileSize=
+{% endif %}
+{% if base_journald_runtimemaxfiles is defined %}
+RuntimeMaxFiles={{ base_journald_runtimemaxfiles }}
+{% else %}
+#RuntimeMaxFiles=100
+{% endif %}
+{% if base_journald_maxretentionsec is defined %}
+MaxRetentionSec={{ base_journald_maxretentionsec }}
+{% else %}
+#MaxRetentionSec=
+{% endif %}
+{% if base_journald_maxfilesec is defined %}
+MaxFileSec={{ base_journald_maxfilesec }}
+{% else %}
+#MaxFileSec=1month
+{% endif %}
+{% if base_journald_forwardtosyslog is defined %}
+ForwardToSyslog={{ base_journald_forwardtosyslog|lower }}
+{% else %}
+#ForwardToSyslog=no
+{% endif %}
+{% if base_journald_forwardtokmsg is defined %}
+ForwardToKMsg={{ base_journald_forwardtokmsg|lower }}
+{% else %}
+#ForwardToKMsg=no
+{% endif %}
+{% if base_journald_forwardtoconsole is defined %}
+ForwardToConsole={{ base_journald_forwardtoconsole|lower }}
+{% else %}
+#ForwardToConsole=no
+{% endif %}
+{% if base_journald_forwardtowall is defined %}
+ForwardToWall={{ base_journald_forwardtowall|lower }}
+{% else %}
+#ForwardToWall=yes
+{% endif %}
+{% if base_journald_ttypath is defined %}
+TTYPath={{ base_journald_ttypath }}
+{% else %}
+#TTYPath=/dev/console
+{% endif %}
+{% if base_journald_maxlevelstore is defined %}
+MaxLevelStore={{ base_journald_maxlevelstore }}
+{% else %}
+#MaxLevelStore=debug
+{% endif %}
+{% if base_journald_maxlevelsyslog is defined %}
+MaxLevelSyslog={{ base_journald_maxlevelsyslog }}
+{% else %}
+#MaxLevelSyslog=debug
+{% endif %}
+{% if base_journald_maxlevelkmsg is defined %}
+MaxLevelKMsg={{ base_journald_maxlevelkmsg }}
+{% else %}
+#MaxLevelKMsg=notice
+{% endif %}
+{% if base_journald_maxlevelconsole is defined %}
+MaxLevelConsole={{ base_journald_maxlevelconsole }}
+{% else %}
+#MaxLevelConsole=info
+{% endif %}
+{% if base_journald_maxlevelwall is defined %}
+MaxLevelWall={{ base_journald_maxlevelwall }}
+{% else %}
+#MaxLevelWall=emerg
+{% endif %}
+{% if base_journald_linemax is defined %}
+LineMax={{ base_journald_linemax }}
+{% else %}
+#LineMax=48K
+{% endif %}
+{% if base_journald_readkmsg is defined %}
+ReadKMsg={{ base_journald_readkmsg|lower }}
+{% else %}
+#ReadKMsg=yes
+{% endif %}
+{% if base_journald_audit is defined %}
+Audit={{ base_journald_audit|lower }}
+{% else %}
+#Audit=no
+{% endif %}

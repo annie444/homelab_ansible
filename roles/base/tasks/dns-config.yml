@@ -1,0 +1,86 @@
+---
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Install systemd-resolved (Redhat-family)
+  ansible.builtin.package:
+    name: "{{ base_dns_template_systemd_resolved_package_name }}"
+    state: present
+  when:
+    - base_dns_template_systemd_resolved_package_name is defined
+    - base_dns_template_systemd_resolved_package_name | length > 0
+    - ansible_os_family == "RedHat"
+    - base_dns_resolver_daemon == "systemd-resolved"
+
+- name: Install systemd-resolved (Debian 12)
+  ansible.builtin.apt:
+    name: "{{ base_dns_template_systemd_resolved_package_name }}"
+    state: present
+    cache_valid_time: "{{ base_package_cache_valid_time }}"
+  when:
+    - base_dns_template_systemd_resolved_package_name is defined
+    - base_dns_template_systemd_resolved_package_name | length > 0
+    - ansible_os_family == "Debian"
+    - ansible_distribution_major_version == "12"
+    - base_dns_resolver_daemon == "systemd-resolved"
+
+- name: Determine if /etc/resolv.conf is a link
+  ansible.builtin.stat:
+    path: "/etc/resolv.conf"
+  register: base_dns_resolv_conf_link_status
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "Path exists and is a symlink"
+  when:
+    - base_dns_resolv_conf_link_status.stat.exists
+    - base_dns_resolv_conf_link_status.stat.islnk
+    - base_debug_mode_enable
+
+- name: Remove /etc/resolv.conf if symlink (base_dns_resolv_conf_link_remove is true)
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    state: absent
+  when:
+    - base_dns_resolv_conf_link_status.stat.islnk is defined and base_dns_resolv_conf_link_status.stat.islnk
+    - base_dns_resolver_daemon == "glibc"
+    - base_dns_resolv_conf_link_remove|bool
+
+- name: Write resolv.conf
+  ansible.builtin.template:
+    src: "{{ base_dns_template_resolv_conf }}"
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+    follow: true
+
+- name: Configure systemd-resolved (native config)
+  ansible.builtin.template:
+    src: "{{ base_dns_systemd_resolved_config_template }}"
+    dest: "{{ base_dns_systemd_resolved_config_target }}"
+    owner: "{{ base_dns_systemd_resolved_config_owner }}"
+    group: "{{ base_dns_systemd_resolved_config_group }}"
+    mode: '0644'
+  when:
+    - base_dns_resolver_daemon == "systemd-resolved"
+  notify: Restart systemd-resolved
+
+- name: Start and Enable systemd-resolved.service
+  ansible.builtin.systemd:
+    name: "{{ base_dns_systemd_resolved_servicename }}"
+    enabled: true
+    state: started
+  when:
+    - base_dns_resolver_daemon == "systemd-resolved"
+
+- name: Stop and Disable systemd-resolved.service
+  ansible.builtin.systemd:
+    name: "{{ base_dns_systemd_resolved_servicename }}"
+    enabled: false
+    state: stopped
+  when:
+    - base_dns_resolver_daemon == "glibc"
+    - ansible_facts.services[base_dns_systemd_resolved_servicename]['status'] is defined
+    - ansible_facts.services[base_dns_systemd_resolved_servicename]['state'] is defined
+    - ansible_facts.services[base_dns_systemd_resolved_servicename]['status'] == 'enabled' or ansible_facts.services[base_dns_systemd_resolved_servicename]['state'] == 'running'

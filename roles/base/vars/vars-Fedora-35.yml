@@ -1,0 +1,4 @@
+---
+base_redhat_hosts_required_packages: "python3-libselinux"
+base_dns_template_systemd_resolved_package_name: "systemd-resolved"
+base_ntp_systemd_timesyncd_package_name: "chronyd.service"

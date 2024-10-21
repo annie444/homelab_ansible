@@ -1,0 +1,18 @@
+---
+# Vars specific for Fedora systems
+
+# requirements for add package sources:
+base_package_manager_dependencies: []
+
+base_package_vars_include_folder: "/etc/dnf/vars"
+
+base_openssh_sftp_subsystem_path: "/usr/libexec/openssh/sftp-server"
+
+base_ca_package_name: "ca-certificates"
+base_ca_path: "/etc/pki/ca-trust/source/anchors"
+base_ca_update_command: "/bin/update-ca-trust"
+
+base_redhat_hosts_required_packages: "libselinux-python"
+base_openssh_servicename: "sshd"
+
+base_ntp_systemd_timesyncd_servicename: "chronyd.service"

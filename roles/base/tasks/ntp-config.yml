@@ -1,0 +1,42 @@
+---
+- name: Install systemd-timesyncd (Redhat-family)
+  ansible.builtin.dnf:
+    name: "{{ base_ntp_systemd_timesyncd_package_name }}"
+    state: present
+  when:
+    - base_ntp_systemd_timesyncd_package_name is defined
+    - base_ntp_systemd_timesyncd_package_name | length > 0
+    - ansible_os_family == "RedHat"
+    - base_ntp_daemon == "systemd-timesyncd"
+  notify: "Enable systemd-timesyncd"
+
+- name: Install systemd-timesyncd (Debian-family)
+  ansible.builtin.apt:
+    name: "{{ base_ntp_systemd_timesyncd_package_name }}"
+    state: present
+    cache_valid_time: "{{ base_package_cache_valid_time }}"
+  when:
+    - base_ntp_systemd_timesyncd_package_name is defined
+    - base_ntp_systemd_timesyncd_package_name | length > 0
+    - ansible_os_family == "Debian"
+    - base_ntp_daemon == "systemd-timesyncd"
+
+- name: Configure systemd-timesyncd
+  ansible.builtin.template:
+    src: "{{ base_ntp_systemd_timesyncd_template }}"
+    dest: "{{ base_ntp_systemd_timesyncd_config_target }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: "Restart systemd-timesyncd"
+  when:
+    - base_ntp_daemon == "systemd-timesyncd"
+
+- name: Start and Enable systemd-timesyncd
+  ansible.builtin.systemd:
+    name: "{{ base_ntp_systemd_timesyncd_servicename }}"
+    enabled: true
+    masked: false
+    state: started
+  when:
+    - base_ntp_daemon == "systemd-timesyncd"

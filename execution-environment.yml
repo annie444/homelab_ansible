@@ -15,4 +15,5 @@ dependencies:
   galaxy:
     collections:
     - name: kubernetes.core
-    - name: community.posix
+    - name: ansible.posix
+    - name: community.general

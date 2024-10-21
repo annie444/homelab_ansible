@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+[Resolve]
+DNS={{ base_dns_nameservers | join(' ') }}
+{% if base_dns_nameservers_fallback is defined %}
+FallbackDNS={{ base_dns_nameservers_fallback | join(' ') }}
+{% endif %}
+{% if base_dns_searchdomains is defined and base_dns_searchdomains|length > 0 %}
+Domains={{ base_dns_searchdomains }}
+{% endif %}
+
+#DNSSEC=no
+#LLMNR=resolve
+#MulticastDNS=resolve
