@@ -2,11 +2,8 @@
 - name: Setup the hosts
   hosts: homelab
   become: true
+  become_user: root
   gather_facts: true
-  collections:
-    - ansible.posix
-    - kubernetes.core
-    - ansible.builtin
   roles:
     - role: base
       vars:

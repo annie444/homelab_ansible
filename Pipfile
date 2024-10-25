@@ -15,10 +15,12 @@ python_version = "3.12"
 [packages]
 ansible = "10.5.0"
 ansible-core = "2.17.5"
-ansible-dev-tools = "*"
 ansible-lint = "*"
+antsibull-changelog = "*"
+antsibull-docs = "*"
 dnspython = "*"
 kubernetes = "*"
 pyyaml = "*"
+sphinx = "*"
 
 [dev-packages]
