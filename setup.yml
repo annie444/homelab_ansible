@@ -3,6 +3,10 @@
   hosts: homelab
   become: true
   gather_facts: true
+  collections:
+    - ansible.posix
+    - kubernetes.core
+    - ansible.builtin
   roles:
     - role: base
       vars:
@@ -130,7 +134,7 @@
           - htop
           - iftop
           - iotop
-          - iputils-ping,
+          - iputils-ping
           - less
           - lsof
           - lsscsi
@@ -152,7 +156,7 @@
           - gpg
           - iotop
           - iputils
-          - less,
+          - less
           - lsof
           - net-tools
           - pciutils
@@ -199,8 +203,7 @@
         base_root_ssh_key_file_name: .ssh/id_ed25519
         base_usercreate_config_enable: true
         base_users_remove_userdata_when_state_absent: false
-        :
-        base_default_editor: vim
+        base_default_editor: nvim
         base_users_optional_tasks_enable: true
         base_bashrc_configure: true
         base_vimrc_configure: true

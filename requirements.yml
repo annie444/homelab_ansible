@@ -3,5 +3,9 @@ collections:
     version: "*"
   - name: ansible.posix
     version: "*"
+  - name: ansible.utils
+    version: "*"
   - name: kubernetes.core
+    version: "*"
+  - name: kubevirt.core
     version: "*"

@@ -194,7 +194,7 @@ argument_specs:
         default: systemd-timesyncd.service
         description: Name of the systemd-unit
         required: false
-        type: ''
+        type: str
       base_ntp_systemd_timesyncd_template:
         default: systemd-timesyncd.conf.j2
         description: Override template

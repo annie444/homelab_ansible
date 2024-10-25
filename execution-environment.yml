@@ -17,3 +17,5 @@ dependencies:
     - name: kubernetes.core
     - name: ansible.posix
     - name: community.general
+    - name: ansible.utils
+    - name: kubevirt.core
