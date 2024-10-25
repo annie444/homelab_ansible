@@ -13,6 +13,10 @@
         base_sysctl_ignoreerrors: false
         base_sysctl_key_value:
           - name: IPv4 Forwarding
+            key: net.ipv4.ip_forward
+            value: 1
+            state: present
+          - name: IPv4 Forwarding
             key: net.ipv4.conf.all.forwarding
             value: 1
             state: present
@@ -244,12 +248,12 @@
             gid: 1001
             state: present
             system: false
-
-    - role: harden
-
-    - role: utils
+        base_selinux_enable: true
+        base_selinux_mode: permissive
 
     - role: kubernetes
+      vars:
+        kubernetes_controller: homelab02
 
 
   pre_tasks:

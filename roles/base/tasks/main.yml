@@ -66,6 +66,17 @@
   tags: dns
   when: base_dns_config_enable|bool
 
+- name: Include SELinux config
+  ansible.builtin.include_tasks:
+    file: selinux.yml
+    apply:
+      tags:
+        - selinux
+  tags: selinux
+  when: 
+    - base_selinux_enable|bool
+    - ansible_os_family == "Redhat"
+
 - name: Include proxy-config.yml
   ansible.builtin.include_tasks:
     file: "proxy-config.yml"

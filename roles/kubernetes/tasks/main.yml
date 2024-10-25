@@ -1,0 +1,79 @@
+---
+# tasks file for kubernetes
+
+- name: Install the kubernetes repo
+  ansible.builtin.yum_repository:
+    name: kubernetes
+    state: present
+    description: Kubernetes
+    baseurl: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
+    enabled: true
+    enablegroups: true
+    gpgcheck: true
+    gpgkey: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
+    exclude: 
+      - kubelet 
+      - kubeadm 
+      - kubectl 
+      - cri-tools 
+      - kubernetes-cni
+
+- name: Install the CRI-O repo
+  ansible.builtin.yum_repository:
+    name: cri-o
+    state: present
+    description: CRI-O 
+    baseurl: https://pkgs.k8s.io/addons:/cri-o:/stable:/v1.31/rpm/
+    enabled: true
+    enablegroups: true
+    gpgcheck: true
+    gpgkey: https://pkgs.k8s.io/addons:/cri-o:/stable:/v1.31/rpm/repodata/repomd.xml.key
+
+- name: Install Kubernetes and CRI-O
+  ansible.builtin.dnf:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+      - cri-o
+    disable_excludes:
+      - kubernetes
+    state: present
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Enable CRI-O
+  ansible.builtin.systemd_service:
+    name: crio
+    state: started
+    enabled: true
+
+- name: Enable Kubelet
+  ansible.builtin.systemd_service:
+    name: kubelet
+    state: started
+    enabled: true
+
+- name: Setup the controller
+  when: inventory_hostname == kubernetes_controller
+  block:
+    - name: Initialize Kubernetes controller
+      ansible.builtin.command: kubeadm init --pod-network-cidr=10.244.0.0/16
+      register: kubeadm_output
+      ignore_errors: true
+
+    - name: Set up kubectl for the current user
+      ansible.builtin.command: "{{ item }}"
+      with_items:
+        - "mkdir -p $HOME/.kube"
+        - "cp /etc/kubernetes/admin.conf $HOME/.kube/config"
+        - "chown $(id -u):$(id -g) $HOME/.kube/config"
+
+- name: Setup the worker nodes
+  when: inventory_hostname != kubernetes_controller
+  block:
+    - name: Join worker nodes to the cluster
+      ansible.buitlin.command: "{{ hostvars[kubernetes_controller]['kubeadm_output']['stdout_lines'][0] }}"
+      when: "'kubeadm join' in hostvars[kubernetes_controller]['kubeadm_output']['stdout']"

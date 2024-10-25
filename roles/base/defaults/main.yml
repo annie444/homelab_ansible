@@ -5,6 +5,9 @@
 base_ipv4_enable: true
 base_ipv6_enable: true
 
+base_selinux_enable: true
+base_selinux_mode: permissive
+
 # print additional debug output:
 base_debug: false
 

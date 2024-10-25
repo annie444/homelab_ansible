@@ -1,0 +1,11 @@
+---
+argument_specs:
+  main:
+    short_description: Setup the base environment
+    description:
+      - Install kubernetes and initialize a cluster
+    options:
+      kubernetes_controller:
+        type: str
+        required: true
+        description: The hostname of the kubernetes controller

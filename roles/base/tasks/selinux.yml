@@ -1,0 +1,6 @@
+---
+- name: Set the selinux enforce setting
+  ansible.posix.selinux:
+    policy: targeted
+    state: "{{ base_selinux_mode }}"
+    update_kernel_param: true
