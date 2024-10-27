@@ -93,10 +93,10 @@
             key: net.ipv4.conf.all.send_redirects
             value: 0
             state: present
-        base_debug: false
+        base_debug: true
         base_manage_hosts_file: false
         base_manage_hostname: true
-        base_check_reverserecord: true
+        base_check_reverserecord: false
         base_dns_config_enable: true
         base_dns_nameservers:
             - 8.8.4.4 
@@ -104,20 +104,11 @@
             - 2001:4860:4860::8888
         base_dns_nameservers_fallback:
             - 1.1.1.1
-        base_dns_searchdomains: "jpeg.gay"
+        base_dns_searchdomains: "homelab.jpeg.gay"
         base_dns_resolver_daemon: systemd-resolved
         base_dns_template_systemd_resolved_package_name: systemd-resolved
         base_dns_systemd_resolved_servicename: systemd-resolved.service
-        base_ntp_config_enable: true
-        base_ntp_daemon: chronyd
-        base_ntp_systemd_timesyncd_package_name: chronyd
-        base_ntp_systemd_timesyncd_config_target: /etc/chrony.conf
-        base_ntp_systemd_timesyncd_servicename: chronyd.service
-        base_ntp_systemd_timesyncd_template: chronyd.conf.j2
-        base_ntp_systemd_timesyncd_ntp_primary: pool.ntp.org
-        base_ntp_systemd_timesyncd_rootdistancemaxsec: 5
-        base_ntp_systemd_timesyncd_pollintervalminsec: 5
-        base_ntp_systemd_timesyncd_pollintervalmaxsec: 11
+        base_ntp_config_enable: false
         base_package_proxy_enable: false
         base_package_install_recommends_and_suggestions: true
         base_package_install_default_enable: true
@@ -126,6 +117,7 @@
           - curl
           - dnsutils
           - ethtool
+          - neovim
           - gpg
           - gpg-agent
           - htop
@@ -148,8 +140,9 @@
           - bind-utils
           - bzip2
           - curl
-          - epel-release
           - ethtool
+          - esmtp-local-delivery
+          - neovim
           - gpg
           - iotop
           - iputils
@@ -180,7 +173,7 @@
         base_openssh_include_pattern: /etc/ssh/sshd_config.d/*.conf
         base_openssh_port: 22
         base_openssh_gen_keys: true
-        base_openssh_force_gen_keys: true
+        base_openssh_force_gen_keys: false
         base_openssh_host_key:
           - /etc/ssh/ssh_host_rsa_key
           - /etc/ssh/ssh_host_ecdsa_key
@@ -190,13 +183,14 @@
           - ecdsa
           - ed25519
         base_openssh_skip_include: false
-        base_openssh_permitrootlogin: false
-        base_openssh_tcpkeepalive: false
+        base_openssh_permitrootlogin: prohibit-password
+        base_openssh_tcpkeepalive: true
+        base_openssh_passwordauth: false
         base_openssh_sshrc_enable: true
         base_openssh_pubkey_used_logging: true
         base_openssh_send_mail_on_login: true
         base_openssh_send_mail_to: root
-        base_root_password_hash: 
+        base_root_password_hash: "$y$j9T$Xirlcd71Urmo7jnQWssz./$rE5DyVTc5AU8fz98bFH0hFrJb3ApbFgP.6NWqB49FmC"
         base_root_ssh_key_file_name: .ssh/id_ed25519
         base_usercreate_config_enable: true
         base_users_remove_userdata_when_state_absent: false
@@ -219,41 +213,20 @@
         base_journald_forwardtosyslog: true
         base_journald_audit: true
         base_ca_config_enable: true
-        base_ca_files:
-          description: List of CA-files (PEM-format) to copy into the target and update trust
-          required: false
-          type: list
-          elements: str
         base_openssh_clientaliveinterval: 180
-        base_userlist_local:
-          - user: annie
-            password: "$6$olCnBZ0jQiGUOyd5$Iual2nFwPiFw.70i7sH4JZVw6xGsn8CZZvw8hPHARSTd8tP7WqwHu6hFyc2K2H7ooDbIWEPuY2M18KlChee16/"
-            sudo_pass: true
-            sudo_nopass: true
-            uid: 1001
-            group_append: true
-            group_primary:
-              - users
-            shell: /bin/bash
-            generate_ssh_key: true
-            ssh_key_type: ed25519
-            default_editor: vim
-            update_password: always
-            state: present
-            system: false
-            create_home: true
-            skeleton: true
-        base_grouplist_local:
-          - groupname: users
-            gid: 1001
-            state: present
-            system: false
         base_selinux_enable: true
         base_selinux_mode: permissive
 
     - role: kubernetes
+      tags:
+        - kube
       vars:
         kubernetes_controller: homelab02
+        kubernetes_firewall_rules: true
+
+    - role: setup_cluster
+      tags:
+        - cluster
 
 
   pre_tasks:

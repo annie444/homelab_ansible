@@ -4,6 +4,11 @@ homelab:
       ansible_host: 192.168.1.40
     homelab02:
       ansible_host: 192.168.1.43
+  vars:
+    ansible_ssh_private_key_file: ~/.ssh/jpeg_ed25519
+    version: present
+    ansible_connection: ssh
+    ansible_python_interpreter: /usr/bin/python3.10
       #    homelab03:
       #      ansible_host: 192.168.1.44
       #    homelab04:

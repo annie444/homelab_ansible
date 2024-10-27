@@ -57,7 +57,7 @@ None.
 
 |Variable|Description|possible values|required|default|
 |---|---|---|---|---|
-| base_debug_mode_enable | Print additional debug output | boolean (true, false) | no | False |
+| base_debug | Print additional debug output | boolean (true, false) | no | False |
 | base_ipv4_enable | Enable IPv4 | boolean (true, false) | no | True |
 | base_ipv6_enable | Enable IPv6 | boolean (true, false) | no | True |
 

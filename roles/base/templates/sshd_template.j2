@@ -26,15 +26,15 @@ Port {{ base_openssh_port }}
 #ListenAddress 0.0.0.0
 #ListenAddress ::
 
-#HostKey /etc/ssh/ssh_host_rsa_key
-#HostKey /etc/ssh/ssh_host_ecdsa_key
-#HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
 
 # Ciphers and keying
 #RekeyLimit default none
 
 # Logging
-#SyslogFacility AUTH
+SyslogFacility AUTH
 #LogLevel INFO
 
 # Authentication:
@@ -52,7 +52,7 @@ PermitRootLogin {{ base_openssh_permitrootlogin|lower }}
 #PubkeyAuthentication yes
 
 # Expect .ssh/authorized_keys2 to be disregarded by default in future.
-#AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2
+AuthorizedKeysFile .ssh/authorized_keys
 
 #AuthorizedPrincipalsFile none
 
@@ -68,8 +68,16 @@ PermitRootLogin {{ base_openssh_permitrootlogin|lower }}
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
+{% if base_openssh_passwordauth is defined %}
+{% if base_openssh_passwordauth %}
+PasswordAuthentication yes
+{% else %}
+PasswordAuthentication no
+{% endif %}
+{% else %}
 #PasswordAuthentication yes
-#PermitEmptyPasswords no
+{% endif %}
+PermitEmptyPasswords no
 
 # Change to yes to enable challenge-response passwords (beware issues with
 # some PAM modules and threads)
@@ -108,8 +116,11 @@ X11Forwarding yes
 PrintMotd no
 #PrintLastLog yes
 
-
-TCPKeepAlive {{ base_openssh_tcpkeepalive|lower }}
+{% if base_openssh_tcpkeepalive %}
+TCPKeepAlive yes
+{% else %}
+TCPKeepAlive no
+{% endif %}
 {% if base_openssh_permituserenvironment %}
 PermitUserEnvironment yes
 {% else %}

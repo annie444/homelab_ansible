@@ -262,7 +262,7 @@ base_openssh_template_sshd: "sshd_template.j2"
 base_openssh_skip_include: false
 base_openssh_include_not_available: false
 
-# base_openssh_permitrootlogin: yes|no|prohibit-password|forced-commands-only (default: not set)
+base_openssh_permitrootlogin: prohibit-password # yes|no|prohibit-password|forced-commands-only (default: not set)
 
 base_openssh_tcpkeepalive: "yes"
 # recommending the following two lines (ClientAliveInterval is more stable and secure than "TCPKeepAlive yes"):

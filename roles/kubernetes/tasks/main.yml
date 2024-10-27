@@ -11,12 +11,6 @@
     enablegroups: true
     gpgcheck: true
     gpgkey: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
-    exclude: 
-      - kubelet 
-      - kubeadm 
-      - kubectl 
-      - cri-tools 
-      - kubernetes-cni
 
 - name: Install the CRI-O repo
   ansible.builtin.yum_repository:
@@ -56,8 +50,79 @@
     state: started
     enabled: true
 
+- name: Check if firewalld is running
+  when: kubernetes_firewall_rules | bool
+  ansible.posix.firewalld:
+    immediate: true
+    permanent: true
+    service: "{{ item }}"
+    state: enabled
+  loop:
+    - audit
+    - bgp
+    - ceph
+    - ceph-exporter
+    - ceph-mon
+    - cockpit
+    - dns
+    - dns-over-quic
+    - dns-over-tls
+    - etcd-client
+    - etcd-server
+    - freeipa-4
+    - freeipa-ldap
+    - freeipa-ldaps
+    - freeipa-replication
+    - freeipa-trust
+    - ftp
+    - grafana
+    - http
+    - http3
+    - https
+    - kerberos
+    - kube-api
+    - kube-apiserver
+    - kube-control-plane
+    - kube-control-plane-secure
+    - kube-controller-manager
+    - kube-controller-manager-secure
+    - kube-nodeport-services
+    - kube-scheduler
+    - kube-scheduler-secure
+    - kube-worker
+    - kubelet
+    - kubelet-readonly
+    - kubelet-worker
+    - libvirt
+    - libvirt-tls
+    - memcache
+    - mosh
+    - opentelemetry
+    - plex
+    - postgresql
+    - prometheus
+    - prometheus-node-exporter
+    - redis
+    - rsyncd
+    - samba
+    - samba-client
+    - samba-dc
+    - ssh
+    - syslog
+    - syslog-tls
+    - tftp
+    - transmission-client
+    - upnp-client
+    - wireguard
+    - ws-discovery
+    - ws-discovery-client
+    - ws-discovery-tcp
+    - ws-discovery-udp
+
 - name: Setup the controller
   when: inventory_hostname == kubernetes_controller
+  tags:
+    - init
   block:
     - name: Initialize Kubernetes controller
       ansible.builtin.command: kubeadm init --pod-network-cidr=10.244.0.0/16
@@ -73,7 +138,43 @@
 
 - name: Setup the worker nodes
   when: inventory_hostname != kubernetes_controller
+  tags:
+    - init
   block:
     - name: Join worker nodes to the cluster
-      ansible.buitlin.command: "{{ hostvars[kubernetes_controller]['kubeadm_output']['stdout_lines'][0] }}"
+      ansible.builtin.command: "{{ hostvars[kubernetes_controller]['kubeadm_output']['stdout_lines'][0] }}"
       when: "'kubeadm join' in hostvars[kubernetes_controller]['kubeadm_output']['stdout']"
+
+- name: Install the kubernetes repo
+  ansible.builtin.yum_repository:
+    name: kubernetes
+    state: present
+    description: Kubernetes
+    baseurl: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
+    enabled: true
+    enablegroups: true
+    gpgcheck: true
+    gpgkey: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
+    exclude: 
+      - kubelet 
+      - kubeadm 
+      - kubectl 
+      - cri-tools 
+      - kubernetes-cni
+
+- name: Install the CRI-O repo
+  ansible.builtin.yum_repository:
+    name: cri-o
+    state: present
+    description: CRI-O 
+    baseurl: https://pkgs.k8s.io/addons:/cri-o:/stable:/v1.31/rpm/
+    enabled: true
+    enablegroups: true
+    gpgcheck: true
+    gpgkey: https://pkgs.k8s.io/addons:/cri-o:/stable:/v1.31/rpm/repodata/repomd.xml.key
+    exclude: 
+      - kubelet 
+      - kubeadm 
+      - kubectl 
+      - cri-tools 
+      - kubernetes-cni

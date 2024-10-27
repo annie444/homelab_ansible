@@ -1,0 +1,78 @@
+---
+# tasks file for setup_cluster
+- name: Install the kubernetes repo
+  ansible.builtin.yum_repository:
+    name: kubernetes
+    state: present
+    description: Kubernetes
+    baseurl: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
+    enabled: true
+    enablegroups: true
+    gpgcheck: true
+    gpgkey: https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
+    exclude: 
+      - kubelet 
+      - kubeadm 
+      - kubectl 
+      - cri-tools 
+      - kubernetes-cni
+
+- name: Install the CRI-O repo
+  ansible.builtin.yum_repository:
+    name: cri-o
+    state: present
+    description: CRI-O 
+    baseurl: https://pkgs.k8s.io/addons:/cri-o:/stable:/v1.31/rpm/
+    enabled: true
+    enablegroups: true
+    gpgcheck: true
+    gpgkey: https://pkgs.k8s.io/addons:/cri-o:/stable:/v1.31/rpm/repodata/repomd.xml.key
+    exclude: 
+      - kubelet 
+      - kubeadm 
+      - kubectl 
+      - cri-tools 
+      - kubernetes-cni
+
+- name: Install helm
+  ansible.builtin.dnf:
+    name: helm
+    state: present
+
+- name: Install cilium
+  ansible.builtin.shell: |
+    CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+    CLI_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+    sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+    rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+  register: cilium_cli
+  changed_when: cilium_cli.rc == 0
+
+- name: Install krew
+  become: false
+  ansible.builtin.shell: |
+    (
+      set -x; cd "$(mktemp -d)" &&
+      OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+      ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+      KREW="krew-${OS}_${ARCH}" &&
+      curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+      tar zxvf "${KREW}.tar.gz" &&
+      ./"${KREW}" install krew
+    )
+    echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> ~/.bashrc
+  args:
+    executable: /bin/bash
+  register: krew_install
+  changed_when: krew_install.rc == 0
+
+- name: Install KubeVirt CLI
+  become: false
+  ansible.builtin.shell: |
+    kubectl krew update
+    kubectl krew install virt
+  args:
+    executable: /bin/bash

@@ -35,7 +35,7 @@
   when:
     - base_dns_resolv_conf_link_status.stat.exists
     - base_dns_resolv_conf_link_status.stat.islnk
-    - base_debug_mode_enable
+    - base_debug
 
 - name: Remove /etc/resolv.conf if symlink (base_dns_resolv_conf_link_remove is true)
   ansible.builtin.file:

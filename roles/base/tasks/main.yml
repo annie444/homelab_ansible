@@ -152,6 +152,21 @@
     - ssh
     - userlocal
 
+- name: Include group-manage-local.yml
+  ansible.builtin.include_tasks:
+    file: "group-manage-local.yml"
+    apply:
+      tags:
+        - grouplocal
+  loop: "{{ base_grouplist_local }}"
+  when:
+    - base_groupcreate_local|bool
+    - base_grouplist_local is defined
+    - base_grouplist_local|length > 0
+  tags:
+    - grouplocal
+    - sudo
+
 - name: Include user-manage-local.yml
   ansible.builtin.include_tasks:
     file: "user-manage-local.yml"
@@ -172,21 +187,6 @@
     - sudo
     - userlocal
     - vim
-
-- name: Include group-manage-local.yml
-  ansible.builtin.include_tasks:
-    file: "group-manage-local.yml"
-    apply:
-      tags:
-        - grouplocal
-  loop: "{{ base_grouplist_local }}"
-  when:
-    - base_groupcreate_local|bool
-    - base_grouplist_local is defined
-    - base_grouplist_local|length > 0
-  tags:
-    - grouplocal
-    - sudo
 
 - name: Include sshd-config.yml
   ansible.builtin.include_tasks:

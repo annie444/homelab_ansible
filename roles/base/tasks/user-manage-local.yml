@@ -43,50 +43,34 @@
     - userlocal
     - vim
 
-- name: Check if the var in item.conditional_var_name_exists is defined (fails when not)
-  ansible.builtin.set_fact:
-    skip_this_user: false
-  when:
-    - lookup('vars', item.conditional_var_name_exists) is defined
-  changed_when: false
-  ignore_errors: true
-  tags:
-    - htop
-    - nano
-    - pubkey
-    - ssh
-    - sudo
-    - userlocal
-    - vim
-
 # yamllint disable rule:colons
 - name: Manage user accounts
   ansible.builtin.user:
     name:               '{{ item.user }}'
-    group:              '{{ item.group_primary      | d(omit) }}'
-    groups:             '{{ item.group_secondary    | d(omit) }}'
-    append:             '{{ item.group_append_group | d(omit) }}'
-    home:               '{{ item.home               | d(omit) }}'
-    uid:                '{{ item.uid                | d(omit) }}'
-    state:              '{{ item.state              | d("present") }}'
-    comment:            '{{ item.comment            | d(omit) }}'
-    password:           '{{ item.password           | d("*") }}'
-    update_password:    '{{ item.update_password    | d("on_create") }}'
-    system:             '{{ item.system             | d(omit) }}'
-    shell:              '{{ item.shell              | d(omit) }}'
-    create_home:        '{{ item.create_home        | d(omit) }}'
-    move_home:          '{{ item.move_home          | d(omit) }}'
-    skeleton:           '{{ item.skeleton           | d(omit) }}'
-    expires:            '{{ item.expires            | d(omit) }}'
-    remove:             '{{ item.remove             | d(omit) }}'
-    force:              '{{ item.force              | d(omit) }}'
-    non_unique:         '{{ item.non_unique         | d(omit) }}'
-    generate_ssh_key:   '{{ item.generate_ssh_key   | d(omit) }}'
-    ssh_key_bits:       '{{ item.ssh_key_bits       | d(omit) }}'
-    ssh_key_comment:    '{{ item.ssh_key_comment    | d(omit) }}'
-    ssh_key_file:       '{{ item.ssh_key_file_name  | d(omit) }}'
-    ssh_key_passphrase: '{{ item.ssh_key_passphrase | d(omit) }}'
-    ssh_key_type:       '{{ item.ssh_key_type       | d(omit) }}'
+    group:              '{{ item.group_primary      | default(omit) }}'
+    groups:             '{{ item.group_secondary    | default(omit) }}'
+    append:             '{{ item.group_append_group | default(omit) }}'
+    home:               '{{ item.home               | default(omit) }}'
+    uid:                '{{ item.uid                | default(omit) }}'
+    state:              '{{ item.state              | default("present") }}'
+    comment:            '{{ item.comment            | default(omit) }}'
+    password:           '{{ item.password           | default("*") }}'
+    update_password:    '{{ item.update_password    | default("on_create") }}'
+    system:             '{{ item.system             | default(omit) }}'
+    shell:              '{{ item.shell              | default(omit) }}'
+    create_home:        '{{ item.create_home        | default(omit) }}'
+    move_home:          '{{ item.move_home          | default(omit) }}'
+    skeleton:           '{{ item.skeleton           | default(omit) }}'
+    expires:            '{{ item.expires            | default(omit) }}'
+    remove:             '{{ item.remove             | default(omit) }}'
+    force:              '{{ item.force              | default(omit) }}'
+    non_unique:         '{{ item.non_unique         | default(omit) }}'
+    generate_ssh_key:   '{{ item.generate_ssh_key   | default(omit) }}'
+    ssh_key_bits:       '{{ item.ssh_key_bits       | default(omit) }}'
+    ssh_key_comment:    '{{ item.ssh_key_comment    | default(omit) }}'
+    ssh_key_file:       '{{ item.ssh_key_file_name  | default(omit) }}'
+    ssh_key_passphrase: '{{ item.ssh_key_passphrase | default(omit) }}'
+    ssh_key_type:       '{{ item.ssh_key_type       | default(omit) }}'
   when:
     - not skip_this_user
 # yamllint enable rule:colon

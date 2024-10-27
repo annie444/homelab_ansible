@@ -50,7 +50,8 @@ argument_specs:
         required: false
         description: Enable sysctl-config (otherwise skip)
       base_sysctl_key_value:
-        type: dict
+        type: list
+        elements: dict
         required: false
         description: Sysctl-parameters
       base_sysctl_path:
@@ -127,37 +128,37 @@ argument_specs:
       base_dns_resolver_daemon:
         default: glibc
         description: which dns-resolver-daemon to use?
-        required: true
+        required: false
         type: str 
       base_dns_template_systemd_resolved_package_name:
         default: systemd-resolved
         description: name of the systemd-resolved packages
-        required: true
+        required: false
         type: str
       base_dns_systemd_resolved_config_template:
         default: systemd-resolved.conf.j2
         description: Name of the template
-        required: true
+        required: false
         type: str
       base_dns_systemd_resolved_config_target:
         default: /etc/systemd/resolved.conf
         description: path of config file
-        required: true
+        required: false
         type: str
       base_dns_systemd_resolved_config_owner:
         default: systemd-resolve
         description: Config file-owner
-        required: true
+        required: false
         type: str
       base_dns_systemd_resolved_config_group:
         default: systemd-resolve
         description: Config file-group
-        required: true
+        required: false
         type: str
       base_dns_systemd_resolved_servicename:
         default: systemd-resolved.service
         description: Name of the systemd service
-        required: true
+        required: false
         type: str
       base_ntp_config_enable:
         default: true
@@ -168,27 +169,27 @@ argument_specs:
         default: systemd-timesyncd
         description: Which NTP daemon should be used? (currently only systemd-timesyncd
           implemented, see geerlingguy.ntp for classic ntpd)
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_package_name:
         default: systemd-timesyncd
         description: Name of the package
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_config_target:
         default: /etc/systemd/timesyncd.conf
         description: Path of the config-file
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_config_owner:
         default: root
         description: Owner of the config-file
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_config_group:
         default: root
         description: Group of the config-file
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_servicename:
         default: systemd-timesyncd.service
@@ -203,12 +204,12 @@ argument_specs:
       base_ntp_systemd_timesyncd_ntp_primary:
         default: pool.ntp.org
         description: Primarily used NTP-servers
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_ntp_fallback:
         default: 0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org
         description: Fallback NTP-servers
-        required: true
+        required: false
         type: str
       base_ntp_systemd_timesyncd_rootdistancemaxsec:
         default: 5
@@ -247,12 +248,12 @@ argument_specs:
       base_proxy_config:
         default: /etc/environment
         description: Set path for config-file
-        required: true
+        required: false
         type: str
       base_package_proxy_enable:
         default: false
         description: Enable proxy config for apt
-        required: true
+        required: false
         type: bool
       base_package_proxy_template:
         default: apt-proxy-server.yml
@@ -277,17 +278,17 @@ argument_specs:
         default: true
         description: Install optional recommended and suggestions (called weak dependencies
           on RedHat)
-        required: true
+        required: false
         type: bool
       base_package_no_recommends_and_suggestions_filename:
         default: 00-no-recommends-and-suggestions
         description: Filename of config-file for this settings (destination is base_package_vars_include_folder)
-        required: true
+        required: false
         type: str
       base_package_source_enable:
         default: true
         description: Enable custom package repositories
-        required: true
+        required: false
         type: bool
       base_packagesources:
         default: []
@@ -297,13 +298,13 @@ argument_specs:
       base_package_install_default_enable:
         default: true
         description: Enable install of default packages (in general)
-        required: true
+        required: false
         type: bool
       base_package_cache_valid_time:
         default: 86400
         description: Do net refresh when packagelist is not older than time (works only
           on Debian-family)
-        required: true
+        required: false
         type: int
       base_package_defaults_debian:
         default: 
@@ -330,7 +331,7 @@ argument_specs:
           - traceroute
           - unzip
         description: List of default packages (Debian) for virtual systems
-        required: true
+        required: false
         type: list
         elements: str
       base_package_defaults_redhat:
@@ -354,13 +355,13 @@ argument_specs:
           - traceroute
           - unzip
         description: List of default packages (Redhat) for virtual systems
-        required: true
+        required: false
         type: list
         elements: str
       base_package_extra_baremetal_enable:
         default: true
         description: Enable install of default packages on baremetal
-        required: true
+        required: false
         type: bool 
       base_package_baremetal_debian:
         default: 
@@ -368,7 +369,7 @@ argument_specs:
           - memtest86+
           - smartmontools
         description: List of default packages (Debian) for physical systems
-        required: true
+        required: false
         type: list
         elements: str
       base_package_baremetal_redhat:
@@ -377,18 +378,18 @@ argument_specs:
           - memtest86+
           - smartmontools
         description: List of default packages (Redhat) for physical systems
-        required: true
+        required: false
         type: list
         elements: str
       base_package_upgrade_enable:
         default: true
         description: Enable updating packages
-        required: true
+        required: false
         type: bool
       base_package_guest_agent_enable:
         default: true
         description: Enable Guest tools for implemented virtualization solutions
-        required: true
+        required: false
         type: bool 
       base_package_guest_agent_qemu_package:
         default: qemu-guest-agent
@@ -409,57 +410,57 @@ argument_specs:
       base_package_unwanted_packages_remove_enabled:
         default: false
         description: Enable removing unwanted packages
-        required: true
+        required: false
         type: bool
       base_package_unwanted_packages_debian:
         description: Remove these packages (Debian)
-        required: true
+        required: false
         type: list
         elements: str
       base_package_unwanted_packages_redhat:
         description: Remove these packages (Redhat)
-        required: true
+        required: false
         type: list
         elements: str
       base_sshd_config_enable:
         default: true
         description: Enable SSHD configuration
-        required: true
+        required: false
         type: bool
       base_openssh_use_template:
         default: true
         description: Use template for /etc/ssh/sshd.conf (or includes via base_openssh_sshd_opts)
-        required: true
+        required: false
         type: bool 
       base_openssh_template_sshd:
         default: sshd_template.j2
         description: Optional override of template for main SSHD config
-        required: true
+        required: false
         type: str
       base_openssh_template_default:
         default: sshd_default_template.j2
         description: Optional override of template for sourced options
-        required: true
+        required: false
         type: str
       base_openssh_sshd_opts:
         default: -o TCPKeepAlive=no -o ClientAliveInterval=180 -o DebianBanner=no
         description: List of sshd-options to be included in /etc/default/ssh
-        required: true
+        required: false
         type: str
       base_openssh_include_pattern:
         default: /etc/ssh/sshd_config.d/*.conf
         description: Specify Include-Pattern
-        required: true
+        required: false
         type: str
       base_openssh_port:
         default: 22
         description: TCP-Portnumber of SSH
-        required: true
+        required: false
         type: int
       base_openssh_gen_keys:
-        default: False
+        default: false
         description: Enable ssh_key generation in general
-        required: true
+        required: false
         type: bool
       base_openssh_force_gen_keys:
         default: true
@@ -473,7 +474,7 @@ argument_specs:
           - /etc/ssh/ssh_host_ecdsa_key
           - /etc/ssh/ssh_host_ed25519_key
         description: List of hostkeys (see example below)
-        required: true
+        required: false
         type: list
         elements: str
       base_openssh_key_types:
@@ -482,55 +483,64 @@ argument_specs:
           - ecdsa
           - ed25519
         description: List of keytypes (see example below)
-        required: true
+        required: false
         type: list
         elements: str
       base_openssh_skip_include:
         default: false
         description: Skip include directive when True
-        required: true
-        type: bool
-      base_openssh_permitrootlogin:
-        default: false
-        description: Defines how user "root" is able to login
         required: false
         type: bool
+      base_openssh_permitrootlogin:
+        default: prohibit-password
+        description: Defines how user "root" is able to login
+        required: false
+        choices:
+          - yes
+          - no
+          - prohibit-password
+          - forced-commands-only
+        type: str
+      base_openssh_passwordauth:
+        type: bool
+        required: false
+        description: Whether passowrd auth is allowed
       base_openssh_tcpkeepalive:
         default: false
         description: TCP-keepalive
-        required: true
+        required: false
         type: bool
       base_openssh_permituserenvironment:
         default: false
         description: PermitUserEnvironment (usually not needed,
-        required: true
+        required: false
         type: bool
       base_openssh_sshrc_enable:
         default: false
         description: Enable sshrc config
-        required: true
+        required: false
         type: bool
       base_openssh_sshrc_template:
         default: sshrc.j2
         description: Override template
-        required: true
+        required: false
         type: str
       base_openssh_pubkey_used_logging:
         default: false
         description: Enables logging which pubkey was used to login, see "sshrc.j2" for
           more information
-        required: true
+        required: false
         type: bool
       base_openssh_send_mail_on_login:
         default: false
         description: Enable notifications of Userlogins via mail (needs working mailrelay-setup)
-        required: true
+        required: false
         type: bool
       base_openssh_send_mail_to:
         default: root
         description: Recipient for notifications of Userlogins
-        required: true
-        type: bool
+        required: false
+        type: str
       base_root_authorizedkeys:
         description: Define local file-path with pubkeys for user root (uploaded to /root/.ssh/authorized_keys)
         required: false
@@ -556,7 +566,7 @@ argument_specs:
       base_users_remove_userdata_when_state_absent:
         default: false
         description: Remove user-data (home-dir etc.) when state is set to "absent"
-        required: true
+        required: false
         type: bool
       base_userlist_local:
         description: Defines local Users to be managed on target system
@@ -571,7 +581,7 @@ argument_specs:
       base_default_editor:
         default: vim
         description: Set default Editor
-        required: true
+        required: false
         type: str
       base_users_optional_tasks_enable:
         default: false
@@ -591,7 +601,7 @@ argument_specs:
       base_bashrc_template:
         default: bashrc.j2
         description: Filename of template for bash
-        required: true
+        required: false
         type: str
       base_vimrc_configure:
         default: true
@@ -601,7 +611,7 @@ argument_specs:
       base_vimrc_template:
         default: vimrc.j2
         description: Filename of template for vim
-        required: true
+        required: false
         type: str
       base_nanorc_configure:
         default: true
@@ -611,7 +621,7 @@ argument_specs:
       base_nanorc_template:
         default: nanorc.j2
         description: Filename of template for nano
-        required: true
+        required: false
         type: str
       base_htoprc_configure:
         default: true
@@ -621,7 +631,7 @@ argument_specs:
       base_htoprc_template:
         default: htoprc.j2
         description: Filename of template for htop
-        required: true
+        required: false
         type: str
       base_machine_id_regenerate:
         description: Enable machine-id feature
@@ -630,17 +640,17 @@ argument_specs:
       base_machine_id_filename:
         default: /etc/machine-id
         description: Path of machine-id file
-        required: true
+        required: false
         type: str
       base_journald_config_enable:
         default: true
         description: Enable systemd-journald feature
-        required: true
+        required: false
         type: bool
       base_journald_template:
         default: journald.conf.j2
         description: None
-        required: true
+        required: false
         type: str
       base_journald_storage:
         description: Controls where to store journal data
