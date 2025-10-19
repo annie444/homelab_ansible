@@ -1,0 +1,819 @@
+---
+# argument spec file for annie444.homelab.common
+
+argument_specs:
+  main:
+    short_description: Role description.
+    options:
+      common_hostname:
+        type: str
+        description: If specified, set hostname.
+        required: false
+
+      common_journald_persistent:
+        type: bool
+        description: >
+          boolean variable which governs where journald stores log file.
+          When set to C(true) the logs will be stored on disk in C(/var/log/journal/).
+          Defaults to C(false), i.e. volatile journal storage.
+        default: false
+      common_journald_max_disk_size:
+        type: int
+        description: >
+          integer variable, in megabytes, that governs how much disk space can
+          journal files occupy before some of them are deleted. No implicit
+          value is configured by the role, hence default sizing calculation
+          described in C(man 5 journald.conf) applies.
+        required: false
+      common_journald_max_file_size:
+        type: int
+        description: >
+          integer variable, in megabytes, describes the maximum size of single
+          journal file. No implicit configuration is set up by the role.
+        required: false
+      common_journald_per_user:
+        type: bool
+        description: >
+          boolean variable, allows to configure whether journald should keep
+          log data separate for each user, e.g. allowing unprivileged users to
+          read system log from their own user services. Defaults to C(true).
+          Note that per user journal files are available only when
+          O(common_journald_persistent) is V(true).
+        required: false
+      common_journald_compression:
+        type: bool
+        description: >
+          boolean variable instructs journald to apply compression to journald
+          data objects that are bigger than default 512 bytes. Defaults to
+          C(true).
+        required: false
+      common_journald_sync_interval:
+        type: int
+        description: >
+          integer variable, in minutes, configures the time span after which
+          journald synchronizes the currently used journal file to disk. By
+          default role doesn't alter currently used value. This setting is
+          only applicable for O(common_journald_persistent) is V(true). You
+          will get a warning if set otherwise.
+        required: false
+      common_journald_forward_to_syslog:
+        type: bool
+        description: >
+          boolean variable, control whether log messages received by the
+          journal daemon shall be forwarded to a traditional syslog daemon.
+          Defaults to C(false).
+        required: false
+      common_journald_rate_limit_interval_sec:
+        type: int
+        description: >
+          integer variable, in seconds, configures the time interval within
+          which only journald_rate_limit_burst messages are handled. See
+          C(man 5 journald.conf) for more information.
+        required: false
+      common_journald_rate_limit_burst:
+        type: int
+        description: >
+          integer variable, sets the upper limit of messages from a service
+          which are handled within the time defined by
+          C(common_journald_rate_limit_interval_sec). See
+          C(man 5 journald.conf) for more information.
+        required: false
+      common_journald_keep_free:
+        type: int
+        description: >
+          integer variable in megabytes, sets the amount of filesystem space
+          in megabytes that should be kept free if the system (persistent or
+          volatile) is close to filling up. See C(man 5 journald.conf)
+          for more information
+        required: false
+      common_journald_max_retention:
+        type: int
+        description: >
+          integer variable, in minutes, sets how long journal entries can be
+          retained before they are deleted. No implicit value is configured
+          by the role.
+        required: false
+
+      common_ca_certificates:
+        type: list
+        elements: path
+        description: >
+          If specified, CA certificates to install in the system CA trust
+          store. Must be a list of local path to PEM or DER formatted
+          certificates.
+        required: false
+
+      common_dns_servers:
+        type: list
+        elements: str
+        description: >
+          List of DNS servers to use, if not set will use the default value
+          generally provided by the DHCP server. If O(common_dns_over_tls) is
+          C(yes), it is recommended to servers values to
+          C(address#server_name) to allow certificate validation.
+        required: false
+      common_dns_servers_fallback:
+        type: list
+        elements: str
+        description: >
+          List of fallback DNS servers to use, if not set will use the default
+          value generally provided by the DHCP server. If
+          O(common_dns_over_tls) is C(yes), it is recommended to servers
+          values to C(address#server_name) to allow certificate validation.
+        required: false
+      common_dns_over_tls:
+        type: str
+        choices:
+          - "yes"
+          - "no"
+          - "opportunistic"
+        default: opportunistic
+        description: >
+          Enable DNS over TLS. C(true) is recommended if DNS server support
+          DNS over TLS because C(opportunistic) mode is more vulnerable.
+          C(no) to enforce classical unencrypted DNS.
+      common_dnssec:
+        type: bool
+        required: false
+        description: >
+          If C(true), enforce DNSSEC validation locally, else use default
+          configuration. The DNS server must support DNSSEC.
+
+      common_domain:
+        type: str
+        required: false
+        description: Domain/FQDN of the current machine.
+
+      common_login_password_min_length:
+        type: int
+        default: 12
+        description: Minimum password size
+
+      common_dnf_automatic_on_shutdown:
+        type: bool
+        default: false
+        description:
+          - >
+            If C(true), trigger DNF automatic updates on system shutdown
+            instead of using timer.
+          - Ignored on Ostree based OS.
+      common_dnf_automatic_restart:
+        type: bool
+        default: true
+        description:
+          - >
+            If C(true), restart the host if required when performing DNF
+            automatic updates. Disabled if O(common_dnf_automatic_on_shutdown)
+            is C(true).
+          - Ignored on Ostree based OS.
+      common_dnf_automatic_upgrade_type:
+        type: str
+        default: default
+        choices:
+          - default
+          - security
+        description:
+          - >
+            The type of update installed by DNF automatic. Possibles values
+            are C(default) (All available updates) or C(security) (Only
+            security updates, may improve stability).
+          - Ignored on Ostree based OS.
+      common_dnf_fastestmirror:
+        type: bool
+        default: false
+        description:
+          - >
+            If C(true), If enabled a metric is used to find the fastest
+            available mirror. This is often dynamically generated by the
+            server to provide the best download speeds and enabling
+            C(fastestmirror) overrides this.
+          - Ignored on Ostree based OS.
+      common_dnf_install_weak_deps:
+        type: bool
+        default: false
+        description:
+          - >
+            If C(true), configure DNF to install weak dependencies.
+          - Ignored on Ostree based OS.
+      common_dnf_keepcache:
+        type: bool
+        default: false
+        description:
+          - >
+            If C(true), configure DNF to keep the package cache.
+          - Ignored on Ostree based OS.
+      common_dnf_nodocs:
+        type: bool
+        default: true
+        description:
+          - >
+            If C(true), disable documentation installation.
+      common_dnf_proxy:
+        type: str
+        required: false
+        description:
+          - >
+            URL of a proxy server to connect through. The expected format of
+            this option is C(<scheme>://<ip-or-hostname>[:port]). If you
+            configured another host with the squid role, you may set this
+            value to C(http://<squid-host-ip-or-hostname>:<squid-port>).
+          - Ignored on Ostree based OS.
+      common_dnf_proxy_auth_method:
+        type: str
+        required: false
+        description:
+          - >
+            If the proxy requires authentication, the authentication method
+            to use.
+          - Ignored on Ostree based OS.
+      common_dnf_proxy_password:
+        type: str
+        required: false
+        description:
+          - >
+            If the proxy requires authentication, the password to use.
+          - Ignored on Ostree based OS.
+      common_dnf_proxy_username:
+        type: str
+        required: false
+        description:
+          - >
+            If the proxy requires authentication, the username to use.
+          - Ignored on Ostree based OS.
+      common_dnf_sslcacert:
+        type: path
+        required: false
+        description:
+          - >
+            If specified, file containing the certificate authorities to
+            verify SSL certificates. If not specified, use system defaults.
+            Can be used to specify proxy certificate when used with
+            O(common_dnf_proxy).
+          - Ignored on Ostree based OS.
+
+      common_os_hardening:
+        type: bool
+        default: true
+        description: If C(true), apply the OS hardening baseline.
+      common_os_hardening_disable_kernel_module_loading:
+        type: bool
+        default: false
+        description: >
+          If C(true), disable kernel modules loading. Only apply when
+          O(common_os_hardening) is set to V(true).
+      common_os_hardening_disable_user_namespaces:
+        type: bool
+        default: false
+        description: >
+          If C(true), disable user namespaces. Only apply when
+          O(common_os_hardening) is set to V(true). User namespaces is required
+          for containers (Docker, Podman, ...) and C(PrivateUsers=) Systemd
+          sandboxing feature, this option must be disabled to use them.
+      common_os_hardening_interactive_timeout:
+        type: int
+        default: 600
+        description: >
+          Timeout for interactive sessions before logout. Only apply when
+          O(common_os_hardening) is set to V(true).
+      common_os_hardening_fips:
+        type: bool
+        default: false
+        description:
+          - If C(true), configure cryptography policies to use FIPS.
+          - >
+            B(WARNING): Keep an SSH shell open before applying this setting
+            because it can break new SSH connexions.
+      common_os_hardening_kernel_ia32_emulation:
+        type: bool
+        default: false
+        description: >
+          If C(false), Reduce attack surface by disabling x86 32-bit
+          emulation on x86-64. Only apply when O(common_os_hardening) is set
+          to V(true).
+      common_os_hardening_localpkg_gpgcheck:
+        type: bool
+        default: true
+        description: >
+          If C(true), requires that local packages are signed to be installed.
+          This will interfere with akmods and should be disabled if using it.
+
+      common_ssh_authorized_key:
+        type: str
+        required: false
+        description: >
+          If specified, add the specified SSH public key to
+          C(~/.ssh/authorized_keys). If O(common_ssh_hardening) is set to
+          V(true), this also disable password authentication.
+          (A key can be generated using C(ssh-keygen -t ed25519))
+      common_ssh_hardening:
+        type: bool
+        default: true
+        description: >
+          If C(true), set an hardened configuration to the SSH server.
+
+      common_admin_password:
+        type: str
+        required: false
+        description: >
+          If specified, set this password to the current remote user. (Must
+          be a hashed password. Can be generated using
+          C(mkpasswd --method=yescrypt))
+
+      common_allow_bluetooth:
+        type: bool
+        default: false
+        description: >
+          If C(true), allow Bluetooth. Will only apply if
+          O(common_os_hardening) is set to V(true).
+      common_allow_thunderbolt:
+        type: bool
+        default: false
+        description: >
+          If C(false), disable Thunderbolt and Firewire.
+      common_allow_usb:
+        type: bool
+        default: true
+        description: >
+          If C(false), disable USB.
+
+      common_cpu_vulnerabilities_mitigation:
+        type: str
+        default: auto
+        choices:
+          - auto
+          - "off"
+          - auto,nosmt
+        description: >
+          Configure kernel CPU vulnerabilities mitigations. Possible values
+          are C(auto) to enable all mitigations (Default kernel behavior),
+          C(off) to disable all mitigations (Best performance, weakest
+          security), C(auto,nosmt) to enable all mitigations and disable
+          SMT if required (Best security, lowest performance).
+
+      common_fail2ban_action:
+        type: str
+        default: "%(action_mwl)s"
+        description: >
+          Fail2ban default action. By default, ban user and send mail with
+          detailed logs to root.
+
+      common_fs_cache:
+        type: bool
+        default: false
+        description: >
+          If true, configure C(cachefilesd) to cache network file system. To
+          use it with NFS or SMB mounts, set this value to C(true) and add
+          C(fsc) to mount options.
+
+      common_grub_auto_hide:
+        type: bool
+        default: false
+        description: If C(true) configure Grub to auto-hide.
+      common_grub_cmdline_linux_default:
+        type: str
+        required: false
+        description: >
+          Space-separated list of extra Linux kernel options passed on boot
+          using C(GRUB_CMDLINE_LINUX_DEFAULT).
+      common_grub_hidden_timeout:
+        type: int
+        default: 0
+        description: Grub hidden timeout to set.
+      common_grub_password:
+        type: str
+        required: false
+        description: If specified, ensure Grub password is set to this value.
+      common_grub_save_default:
+        type: bool
+        default: false
+        description: >
+          If C(true) configure Grub to use the last used entry as default.
+      common_grub_timeout:
+        type: int
+        default: 1
+        description: Grub timeout to set.
+
+      common_guest_incus:
+        type: bool
+        default: false
+        description: If C(true) install Incus guest agent.
+      common_guest_qemu:
+        type: bool
+        default: false
+        description: If C(true) Install Qemu guest agent.
+
+      common_kernel_lockdown:
+        type: str
+        choices:
+          - integrity
+          - confidentiality
+        description: >
+          If specified, enable kernel lockdown. Possible values are
+          C(integrity) to protect the kernel from modification,
+          C(confidentiality) to protect kernel from modification and from
+          extracting confidential information.
+
+      common_mail_smtp_host:
+        type: str
+        required: false
+        description: SMTP server host.
+      common_mail_smtp_inet_interfaces:
+        type: str
+        default: 127.0.0.1
+        description: >
+          Interface from where accept SMTP requests. By default,
+          C(localhost) only. Only if O(common_mail_smtp_host) is specified.
+      common_mail_smtp_password:
+        type: str
+        required: false
+        description: >
+          Password of the O(common_mail_relay_user) user on the SMTP server.
+          Only if O(common_mail_smtp_host) is specified.
+      common_mail_smtp_port:
+        type: int
+        default: 465
+        description: >
+          SMTP server port to use, can be: C(25) (SMTP), C(465) (SMTPS),
+          C(587) (SMTP-Submission). Only if O(common_mail_smtp_host) is
+          specified.
+      common_mail_smtp_user:
+        type: str
+        required: false
+        description: >
+          User to authenticate on the SMTP server, if specified enable SMTP
+          authentication. Only if O(common_mail_smtp_host) is specified.
+      common_mail_smtp_tls:
+        type: str
+        choices:
+          - TLS
+          - STARTTLS
+        required: false
+        description: >
+          TLS Security mode to use. Possible values are C(TLS) (For SMTPS) or
+          C(STARTTLS) (for SMTP/SMTP-Submission).
+      common_mail_smtp_send_to:
+        type: str
+        required: false
+        description: >
+          If specified, redirect all root mails to the specified email address.
+
+      common_netdata_claim_rooms:
+        type: str
+        required: false
+        description: >
+          If specified, claim Netdata node in the specifid room.
+          O(common_netdata_claim_token) is required. Value is the room
+          UUID in Netdata cloud.
+      common_netdata_claim_token:
+        type: str
+        required: false
+        description: >
+          If specified, claim Netdata node in the cloud using the specified
+          token. Value is the token from the Netdata cloud.
+          O(common_netdata_claim_rooms) is required.
+      common_netdata_cloud_only:
+        type: bool
+        default: false
+        description: >
+          If C(true), Netdata dashboard is only reachable from Netdata cloud.
+          O(common_netdata_claim_token) is required.
+      common_netdata_enable:
+        type: bool
+        default: false
+        description: If C(true), install Netdata agent.
+      common_netdata_ephemeral_node:
+        type: bool
+        default: false
+        description: >
+          If C(true), node is configured as "ephemeral" instead of "permanent"
+          (Should be set to true to any server that is stopped frequently).
+      common_netdata_stream_api_key:
+        type: str
+        required: false
+        description: >
+          If specified, configure Netdata stream using the specified API Key.
+          O(common_netdata_stream_destination) is required.
+      common_netdata_stream_destination:
+        type: str
+        required: false
+        description: >
+          If specified, configure Netdata stream to the specified parent
+          destination. If configured, and O(common_netdata_claim_token) is not
+          configured, configure the agent as a thin agent that only stream to
+          the parent. O(common_netdata_stream_api_key) is required.
+
+      common_nfs_mount:
+        type: list
+        elements: dict
+        required: false
+        description: >
+          If specified, mount specified NFS shares. Must be a list of mapping
+          (one per share to mount).
+        options:
+          path:
+            type: path
+            required: true
+            description: mount point path,
+          src:
+            type: str
+            required: true
+            description: share to mount
+          opts:
+            type: str
+            required: false
+            description: optional, mount options, see C(fstab(5))
+          owner:
+            type: str
+            required: false
+            description: optional, user owning the mount
+          group:
+            type: str
+            required: false
+            description: optional, group owning the mount
+          mode:
+            type: str
+            required: false
+            description: optional, permission mode
+          state:
+            type: str
+            choices:
+              - present
+              - absent
+              - absent_from_fstab
+              - mounted
+              - unmounted
+              - remounted
+              - ephemeral
+            required: false
+            description: >
+              optional, C(present) if require to only add it to
+              C(/etc/fstab) without applying it now
+
+      common_ntp_servers:
+        type: list
+        elements: dict
+        required: false
+        description: List of NTP servers
+        options:
+          hostname:
+            type: str
+            required: true
+            description: Hostname or address of the server
+          minpoll:
+            type: int
+            default: 6
+            description: Minimum polling interval
+          maxpoll:
+            type: int
+            default: 10
+            description: Maximum polling interval
+          iburst:
+            type: bool
+            default: false
+            description: Flag enabling fast initial synchronization
+          pool:
+            type: bool
+            default: false
+            description: >
+              Flag indicating that each resolved address of the hostname is a
+              separate NTP server
+          nts:
+            type: bool
+            default: false
+            description: >
+              Flag enabling Network Time Security (NTS) authentication
+              mechanism (supported only with chrony >= 4.0)
+          prefer:
+            type: bool
+            default: false
+            description: >
+              Flag marking the source to be preferred for synchronization over
+              other sources
+          trust:
+            type: bool
+            default: false
+            description: >
+              Flag marking the source to be trusted over sources that don't
+              have this flag
+          xleave:
+            type: bool
+            default: false
+            description: Flag enabling interleaved mode
+          filter:
+            type: int
+            default: 1
+            description: >
+              Number of NTP measurements per clock update
+
+      common_ptp_domains:
+        type: list
+        elements: dict
+        required: false
+        options:
+          number:
+            type: int
+            required: true
+            description: >
+              PTP domain number
+          interfaces:
+            type: list
+            elements: str
+            required: true
+            description: >
+              List of interfaces in the domain
+          delay:
+            type: float
+            required: false
+            description: >
+              Assumed maximum network delay to the grandmaster in seconds
+          transport:
+            type: str
+            choices:
+              - UDPv4
+              - UDPv6
+              - L2
+            default: UDPv4
+            description: >
+              Network transport: UDPv4, UDPv6, L2
+          udp_ttl:
+            type: int
+            default: 1
+            description: >
+              TTL for UDPv4 and UDPv6 transports
+          hybrid_e2e:
+            type: bool
+            default: false
+            description: Flag enabling unicast end-to-end delay requests
+
+      common_dhcp_ntp_servers:
+        type: bool
+        default: false
+        description: Flag enabling use of NTP servers provided by DHCP
+      common_ntp_step_threshold:
+        type: float
+        default: 1.0
+        description: >
+          Minimum offset of the clock which can be corrected by stepping
+          (default is specific to NTP/PTP implementation: chrony C(1.0), ntp
+          C(0.128), linuxptp C(0.00002)). Zero threshold disables all steps.
+      common_ntp_max_distance:
+        type: int
+        required: false
+        description:
+          - Maximum root distance to accept measurements from NTP servers.
+          - Set to 0 to use provider default
+      common_ntp_min_sources:
+        type: int
+        default: 1
+        description: >
+          Minimum number of selectable time sources required to allow
+          synchronization of the clock
+      common_ntp_hwts_interfaces:
+        type: list
+        elements: str
+        required: false
+        description: >
+          List of interfaces which should have hardware timestamping enabled
+          for NTP (default empty list). As a special value, '*' enables the
+          timestamping on all interfaces that support it.
+      common_ntp_provider:
+        type: str
+        default: chrony
+        choices:
+          - chrony
+          - ntp
+        description: >
+          Name of the package which should be installed and configured for
+          NTP. Possible values are C(chrony) and C(ntp).
+      common_chrony_custom_settings:
+        type: list
+        elements: str
+        required: false
+        description: >
+          Sometimes administrators might need extended configurations for
+          chrony which are not covered by the predefined settings provided by
+          this role. O(common_chrony_custom_settings) allows to define a list
+          of custom settings for the C(chrony.conf) file, by providing a list
+          of settings. As an example, for debugging, one might need to log
+          measurements, statistics and tracking. This information is usually
+          stored in the C(/var/log/chrony) directory.
+      common_transactional_update_reboot_ok:
+        type: bool
+        default: true
+        description: >
+          This variable is applicable only for transactional update systems.
+          If a transactional update requires a reboot, the role will proceed
+          with the reboot if O(common_transactional_update_reboot_ok) is set
+          to C(true). If set to C(false), the role will notify the user that
+          a reboot is required, allowing for custom handling of the reboot
+          requirement. For non-transactional update systems, this variable is
+          ignored.
+      common_ntp_ip_family:
+        type: str
+        choices:
+          - IPv4
+          - IPv6
+          - all
+        default: all
+        description: >
+          This option is useful on systems where IPv6 or IPv4 are disabled.
+          C(chronyd) will work on a IPv6-disabled host without C(-4), but it
+          logs error messages when binding to the IPv6 sockets fails. Adding
+          the C(-4) option disables those sockets and there are no error
+          messages. It's also useful to prevent the client from using IPv6
+          servers when IPv4 is known to work better (e.g. IPv6 over a tunnel).
+          Corresponds to the C(-4) and C(-6) C(OPTIONS) for C(chronyd) and
+          C(ntpd). Values are: C(IPv4) - use only IPv4, C(IPv6) - use only
+          IPv6, and C(all) - use both IPv4 and IPv6. Default is C(all).
+
+      common_os_target_release:
+        type: str
+        required: false
+        description: >
+          If specified, the target OS release for upgrade. Else, default to the
+          latest available Fedora version. If the current OS version is equal
+          to C(common_os_target_release - 1), the OS will be upgraded to the
+          O(common_os_target_release) automatically. Currently, this feature
+          is not available for ostree Fedora variants.
+
+      common_random_mac_wifi:
+        type: str
+        default: random
+        choices:
+          - random
+          - stable
+          - permanent
+        description: >
+          Random MAC address mode when using WIFI, C(random) to always generate
+          a random mac address, C(stable) to generate a random mac address per
+          network. When using C(random), it is still possible to configure a
+          specific network to C(stable) using C(nmcli c modify <UUID>
+          802-11-wireless.cloned-mac-address stable) (With UUID the value
+          from with C(nmcli c | grep wifi)).
+      common_random_mac_ethernet:
+        type: str
+        default: stable
+        choices:
+          - random
+          - stable
+          - permanent
+        description: >
+          Random MAC address mode when using Ethernet, C(random) to always
+          generate a random mac address, C(stable) to generate a random mac
+          address per network or C(permanent) to use the real interface MAC
+          address.
+
+      common_smb_mount:
+        type: list
+        elements: dict
+        description: >
+          If specified, mount specified CIFS/SMB shares. The value format is
+          identical to O(common_nfs_mount).
+        options:
+          path:
+            type: path
+            required: true
+            description: mount point path,
+          src:
+            type: str
+            required: true
+            description: share to mount
+          opts:
+            type: str
+            required: false
+            description: optional, mount options, see C(fstab(5))
+          owner:
+            type: str
+            required: false
+            description: optional, user owning the mount
+          group:
+            type: str
+            required: false
+            description: optional, group owning the mount
+          mode:
+            type: str
+            required: false
+            description: optional, permission mode
+          state:
+            type: str
+            choices:
+              - present
+              - absent
+              - absent_from_fstab
+              - mounted
+              - unmounted
+              - remounted
+              - ephemeral
+            required: false
+            description: >
+              optional, C(present) if require to only add it to
+              C(/etc/fstab) without applying it now
+
+      common_trusted_firewalld_source:
+        type: list
+        elements: str
+        required: false
+        description: >
+          If specified, configure Firewalld to authorize SSH access only from
+          the specified sources list in CIDR notation (C(["192.168.1.10/32",
+          "192.168.1.0/24", "2001:db8:1234:5678::/64"], ...)).

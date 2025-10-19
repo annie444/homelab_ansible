@@ -1,0 +1,102 @@
+---
+- name: Ensure auditd plugins are installed
+  ansible.builtin.dnf:
+    state: present
+    name:
+      - audispd-plugins
+      - rpm-plugin-audit
+    install_weak_deps: false
+  retries: 10
+  delay: 1
+  register: _
+  until: _ is successful
+  when: not (_ostree | bool)
+
+- name: Ensure auditd plugins are installed
+  community.general.rpm_ostree_pkg:
+    state: present
+    name:
+      - audispd-plugins
+      - rpm-plugin-audit
+  when: _ostree | bool
+
+- name: Check if Auditd configuration was updated by RPM
+  ansible.builtin.stat:
+    path: /etc/audit/auditd.conf.rpmnew
+  register: _auditd_conf_rpmnew
+
+- name: Ensure latest Auditd configuration from RPM is used
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/audit/auditd.conf.rpmnew
+    dest: /etc/audit/auditd.conf
+    owner: root
+    group: root
+    mode: "0640"
+  when: _auditd_conf_rpmnew.stat.exists
+
+- name: Check if Auditd syslog plugin configuration was updated by RPM
+  ansible.builtin.stat:
+    path: /etc/audit/plugins.d/syslog.conf.rpmnew
+  register: _auditd_syslog_conf_rpmnew
+
+- name: Ensure latest Auditd syslog plugin configuration from RPM is used
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/audit/plugins.d/syslog.conf.rpmnew
+    dest: /etc/audit/plugins.d/syslog.conf.conf
+    owner: root
+    group: root
+    mode: "0644"
+  when: _auditd_syslog_conf_rpmnew.stat.exists
+
+- name: Ensure Auditd is configured
+  ansible.builtin.lineinfile:
+    dest: "{{ item.dest | default('/etc/audit/auditd.conf') }}"
+    line: "{{ item.line }}"
+    regexp: "^#*{{ item.line.split('=')[0] | trim() }} ="
+    state: present
+  loop:
+    - line: "space_left_action = email"
+    - line: "name_format = hostname"
+    - line: "active = yes"
+      dest: /etc/audit/plugins.d/syslog.conf
+
+- name: Ensure Auditd RPM package files metadata are in sync
+  ansible.builtin.command: rpm --restore audit audit-rules audispd-plugins # noqa command-instead-of-module
+  changed_when: false
+
+- name: Ensure Auditd "rpmnew" files are absent
+  ansible.builtin.file:
+    path: "{{ item }}.rpmnew"
+    state: absent
+  loop:
+    - /etc/audit/auditd.conf
+    - /etc/audit/plugins.d/syslog.conf
+
+- name: Ensure Auditd "rpmsave" files are absent
+  ansible.builtin.file:
+    path: "{{ item }}.rpmsave"
+    state: absent
+  loop:
+    - /etc/audit/auditd.conf
+    - /etc/audit/plugins.d/syslog.conf
+
+- name: List privileged binaries on the system
+  ansible.builtin.command: "find /usr -xdev -type f -perm -4000 -o -type f -perm -2000"
+  changed_when: false
+  register: _audit_find_privileged_paths
+  when: common_os_hardening | bool
+
+- name: Ensure hardened audit rules are installed
+  ansible.builtin.template:
+    src: audit-hardening.rules.j2
+    dest: /etc/audit/rules.d/audit-hardening.rules
+    mode: "0600"
+  when: common_os_hardening | bool
+
+- name: Ensure hardened audit rules are uninstalled
+  ansible.builtin.file:
+    path: /etc/audit/rules.d/audit-hardening.rules
+    state: absent
+  when: not (common_os_hardening | bool)

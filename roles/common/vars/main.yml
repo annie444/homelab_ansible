@@ -1,0 +1,105 @@
+---
+# vars file for annie444.homelab.common
+common_sysctl_hardening_options:
+  # Requires CAP_SYS_MODULE to load TTY line disciplines
+  - name: "dev.tty.ldisc_autoload"
+    value: 0
+  # Prevents writes to attacker-controlled files and FIFO
+  - name: "fs.protected_fifos"
+    value: 2
+  - name: "fs.protected_regular"
+    value: 2
+  # Prevents core dump of suid/sguid executables
+  - name: "fs.suid_dumpable"
+    value: 0
+  # Disable core dump
+  - name: "kernel.core_pattern"
+    value: "|/bin/false"
+  # Requires CAP_SYSLOG to read kernel logs
+  - name: "kernel.dmesg_restrict"
+    value: 1
+  # Disables kernel live patching
+  - name: "kernel.kexec_load_disabled"
+    value: 1
+  # Blocks access kernel pointers
+  - name: "kernel.kptr_restrict"
+    value: 2
+  # Requires CAP_PERFMON to use performance events
+  - name: "kernel.perf_event_paranoid"
+    value: 2
+  # Disable SysRq key
+  - name: "kernel.sysrq"
+    value: 0
+  # Requires CAP_SYS_PTRACE to use ptrace
+  - name: "kernel.yama.ptrace_scope"
+    value: 2
+  # Requires CAP_BPF to access kernel pointers
+  - name: "kernel.unprivileged_bpf_disabled"
+    value: 1
+  - name: "net.core.bpf_jit_harden"
+    value: 2
+  # Time-wait assassination attacks prevention
+  - name: "net.ipv4.tcp_rfc1337"
+    value: 1
+  # MITM attacks prevention : Disables ICMP redirect acceptance
+  - name: "net.ipv4.conf.all.accept_redirects"
+    value: 0
+  - name: "net.ipv4.conf.default.accept_redirects"
+    value: 0
+  - name: "net.ipv4.conf.all.secure_redirects"
+    value: 0
+  - name: "net.ipv4.conf.default.secure_redirects"
+    value: 0
+  - name: "net.ipv6.conf.all.accept_redirects"
+    value: 0
+  - name: "net.ipv6.conf.default.accept_redirects"
+    value: 0
+  # MITM attacks prevention : Disables ICMP redirect sending
+  - name: "net.ipv4.conf.all.send_redirects"
+    value: 0
+  - name: "net.ipv4.conf.default.send_redirects"
+    value: 0
+  # DDos attacks prevention : Enables RFC3704 strict mode to prevent IP spoofing
+  - name: "net.ipv4.conf.all.rp_filter"
+    value: 1
+  # Logs suspicious packets
+  - name: "net.ipv4.conf.all.log_martians"
+    value: 1
+  - name: "net.ipv4.conf.default.log_martians"
+    value: 1
+  # Smurf attacks prevention : Ignores ICPM echo and timestamp requests
+  - name: "net.ipv4.icmp_echo_ignore_all"
+    value: 1
+  - name: "net.ipv6.icmp.echo_ignore_all"
+    value: 1
+  # Clock fingerprinting prevention : Disables TCP timestamps
+  - name: "net.ipv4.tcp_timestamps"
+    value: 0
+  # Disables TCP SACK
+  - name: "net.ipv4.tcp_sack"
+    value: 0
+  - name: "net.ipv4.tcp_dsack"
+    value: 0
+  - name: "net.ipv4.tcp_fack"
+    value: 0
+  # MITM attacks prevention : Disables IPv6 router advertisements
+  - name: "net.ipv6.conf.all.accept_ra"
+    value: 0
+  - name: "net.ipv6.conf.default.accept_ra"
+    value: 0
+  # Privacy : Enables IPv6 privacy extensions
+  - name: "net.ipv6.conf.all.use_tempaddr"
+    value: 2
+  - name: "net.ipv6.conf.default.use_tempaddr"
+    value: 2
+  # Improves ASLR effectiveness for mmap.
+  - name: "vm.mmap_rnd_bits"
+    value: 32
+  - name: "vm.mmap_rnd_compat_bits"
+    value: 16
+  # Requires CAP_SYS_PTRACE to use the userfaultfd() syscall
+  - name: "vm.unprivileged_userfaultfd"
+    value: 0
+  # Swap only if it is absolutely necessary
+  - name: "vm.swappiness"
+    value: 1

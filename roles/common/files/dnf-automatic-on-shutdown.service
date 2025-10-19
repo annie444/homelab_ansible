@@ -1,0 +1,14 @@
+[Unit]
+Description=dnf automatic install updates on shutdown
+Requires=network-online.target
+After=network-online.target postfix.service
+ConditionPathExists=!/run/ostree-booted
+
+[Service]
+Type=oneshot
+ExecStop=/usr/bin/dnf-automatic --installupdates
+RemainAfterExit=true
+TimeoutStopSec=infinity
+
+[Install]
+WantedBy=multi-user.target

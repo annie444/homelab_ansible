@@ -1,0 +1,101 @@
+---
+- name: Check if PAM SU configuration was updated by RPM
+  ansible.builtin.stat:
+    path: /etc/pam.d/su.rpmnew
+  register: pam_su_rpmnew
+
+- name: Ensure latest SU default configuration from RPM is used
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/pam.d/su.rpmnew
+    dest: /etc/pam.d/su
+    owner: root
+    group: root
+    mode: "0644"
+  when: pam_su_rpmnew.stat.exists
+
+- name: Check if PAM SU-l configuration was updated by RPM
+  ansible.builtin.stat:
+    path: /etc/pam.d/su-l.rpmnew
+  register: pam_su_l_rpmnew
+
+- name: Ensure latest SU-l default configuration from RPM is used
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/pam.d/su-l.rpmnew
+    dest: /etc/pam.d/su-l
+    owner: root
+    group: root
+    mode: "0644"
+  when: pam_su_l_rpmnew.stat.exists
+
+- name: Check if PAM pwquality configuration was updated by RPM
+  ansible.builtin.stat:
+    path: /etc/security/pwquality.conf.rpmnew
+  register: pam_pwquality_rpmnew
+
+- name: Ensure latest pwquality default configuration from RPM is used
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/security/pwquality.conf.rpmnew
+    dest: /etc/security/pwquality.conf
+    owner: root
+    group: root
+    mode: "0644"
+  when: pam_pwquality_rpmnew.stat.exists
+
+- name: Ensure SU access is restricted to wheel group
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regexp: '^#?auth\s+required\s+pam_wheel.so\s+use_uid\s*$'
+    line: "{{ (common_os_hardening | bool) | ternary('auth ', '#auth') }}           required        pam_wheel.so use_uid"
+  loop:
+    - /etc/pam.d/su
+    - /etc/pam.d/su-l
+
+- name: Ensure password quality is configured
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: '^#*\s*{{ item.split("=")[0] | trim }}\s*='
+    line: "{{ item }}"
+  loop:
+    - retry = 3
+    - "minlen = {{ common_login_password_min_length }}"
+    - dcredit = -1
+    - lcredit = -1
+    - ocredit = -1
+    - ucredit = -1
+
+- name: Ensure a generic /etc/issue is configured
+  ansible.builtin.copy:
+    src: login-banner
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - /etc/issue
+    - /etc/issue.net
+
+- name: Ensure PAM RPM package files metadata are in sync
+  ansible.builtin.command: rpm --restore util-linux libpwquality fedora-release-common # noqa command-instead-of-module
+  changed_when: false
+
+- name: Ensure PAM related "rpmnew" files are absent
+  ansible.builtin.file:
+    path: "{{ item }}.rpmnew"
+    state: absent
+  loop:
+    - /etc/pam.d/su
+    - /etc/pam.d/su-l
+    - /etc/security/pwquality.conf
+
+- name: Ensure PAM related "rpmsave" files are absent
+  ansible.builtin.file:
+    path: "{{ item }}.rpmsave"
+    state: absent
+  loop:
+    - /etc/pam.d/su
+    - /etc/pam.d/su-l
+    - /etc/security/pwquality.conf
+# vim: set ft=yaml.ansible:
