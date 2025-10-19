@@ -3,7 +3,7 @@ version: 3
 
 images:
   base_image:
-    name: docker.io/library/ubuntu:jammy
+    name: docker.io/library/ubuntu:noble
 
 dependencies:
   ansible_runner:
@@ -15,8 +15,9 @@ dependencies:
   galaxy: ../requirements.yml
 
 options:
-  package_manager_path: export DEBIAN_FRONTEND=noninteractive && /usr/bin/apt-get
+  package_manager_path: /usr/bin/apt-get
 
 additional_build_steps:
   prepend_base:
+    - ENV DEBIAN_FRONTEND=noninteractive
     - RUN $PKGMGR -y -q install python3-dev
