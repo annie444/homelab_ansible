@@ -1,0 +1,22 @@
+---
+version: 3
+
+images:
+  base_image:
+    name: docker.io/library/debian:bookworm
+
+dependencies:
+  ansible_runner:
+    package_pip: ansible-runner
+
+  ansible_core:
+    package_pip: ansible-core
+
+  galaxy: ../requirements.yml
+
+options:
+  package_manager_path: export DEBIAN_FRONTEND=noninteractive && /usr/bin/apt-get
+
+additional_build_steps:
+  prepend_base:
+    - RUN $PKGMGR -y -q install python3-dev

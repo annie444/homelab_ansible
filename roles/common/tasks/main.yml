@@ -1,0 +1,125 @@
+---
+- name: Ensure hostname is set
+  ansible.builtin.hostname:
+    name: "{{ common_hostname }}"
+  when: common_hostname is defined
+
+- name: Ensure Anaconda Kickstart file is absent
+  ansible.builtin.file:
+    path: /root/anaconda-ks.cfg
+    state: absent
+
+- name: Journald configuration
+  ansible.builtin.include_role:
+    name: fedora.linux_system_roles.journald
+  vars:
+    journald_persistent: "{{ common_journald_persistent | default(undef()) }}"
+    journald_max_disk_size: "{{ common_journald_max_disk_size | default(undef()) }}"
+    journald_max_file_size: "{{ common_journald_max_file_size | default(undef()) }}"
+    journald_per_user: "{{ common_journald_per_user | default(undef()) }}"
+    journald_compression: "{{ common_journald_compression | default(undef()) }}"
+    journald_sync_interval: "{{ common_journald_sync_interval | default(undef()) }}"
+    journald_forward_to_syslog: "{{ common_journald_forward_to_syslog | default(undef()) }}"
+    journald_rate_limit_interval_sec: "{{ common_journald_rate_limit_interval_sec | default(undef()) }}"
+    journald_rate_limit_burst: "{{ common_journald_rate_limit_burst | default(undef()) }}"
+    journald_keep_free: "{{ common_journald_keep_free | default(undef()) }}"
+    journald_max_retention: "{{ common_journald_max_retention | default(undef()) }}"
+  when: >
+    common_journald_persistent is defined or
+    common_journald_max_disk_size is defined or
+    common_journald_max_file_size is defined or
+    common_journald_per_user is defined or
+    common_journald_compression is defined or
+    common_journald_sync_interval is defined or
+    common_journald_forward_to_syslog is defined or
+    common_journald_rate_limit_interval_sec is defined or
+    common_journald_rate_limit_burst is defined or
+    common_journald_keep_free is defined or
+    common_journald_max_retention is defined
+
+- name: CA certificates configuration
+  ansible.builtin.include_tasks:
+    file: ca_certificates.yml
+  when: common_ca_certificates is defined
+
+- name: DNS configuration
+  ansible.builtin.include_tasks:
+    file: dns.yml
+
+- name: PAM configuration
+  ansible.builtin.include_tasks:
+    file: pam.yml
+
+- name: DNF configuration
+  ansible.builtin.include_tasks:
+    file: dnf.yml
+  when: not (_ostree | bool)
+
+- name: DNF OS upgrade
+  ansible.builtin.include_tasks:
+    file: dnf_upgrade.yml
+  when: not (_ostree | bool)
+
+- name: Auditd configuration
+  ansible.builtin.include_tasks:
+    file: audit.yml
+
+- name: OS Hardening
+  ansible.builtin.include_tasks:
+    file: hardening_os.yml
+  when: common_os_hardening | bool
+
+- name: SSH Hardening
+  ansible.builtin.include_tasks:
+    file: hardening_ssh.yml
+
+- name: Admin credentials configuration
+  ansible.builtin.include_tasks:
+    file: admin_credentials.yml
+
+- name: NTP configuration
+  when: common_ntp_servers is defined or common_ptp_domains is defined
+  ansible.builtin.include_tasks:
+    file: ntp.yml
+
+- name: Boot configuration
+  ansible.builtin.include_tasks:
+    file: grub.yml
+
+- name: FS-Cache configuration
+  ansible.builtin.include_tasks:
+    file: fs_cache.yml
+  when: common_fs_cache | bool
+
+- name: NFS mounts configuration
+  ansible.builtin.include_tasks:
+    file: mount_nfs.yml
+  when: common_nfs_mount is defined
+
+- name: SMB mounts configuration
+  ansible.builtin.include_tasks:
+    file: mount_smb.yml
+  when: common_smb_mount is defined
+
+- name: Guest VM configuration
+  ansible.builtin.include_tasks:
+    file: guest.yml
+
+- name: Fail2ban configuration
+  ansible.builtin.include_tasks:
+    file: fail2ban.yml
+
+- name: Email configuration
+  ansible.builtin.include_tasks:
+    file: mail.yml
+  when: common_mail_smtp_host is defined
+
+- name: Netdata configuration
+  ansible.builtin.include_tasks:
+    file: netdata.yml
+  when: common_netdata_enable | bool
+
+- name: Firewall configuration
+  ansible.builtin.include_tasks:
+    file: firewall.yml
+# vim: set ft=yaml.ansible:

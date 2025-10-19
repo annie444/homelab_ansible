@@ -1,0 +1,60 @@
+---
+- name: Set the NTP servers
+  when: common_ntp_servers is defined
+  ansible.builtin.set_fact:
+    timesync_ntp_servers: "{{ common_ntp_servers }}"
+
+- name: Set the PTP domains
+  when: common_ptp_domains is defined
+  ansible.builtin.set_fact:
+    timesync_ptp_domains: "{{ common_ptp_domains }}"
+
+- name: Set the DHCP server
+  when: common_dhcp_ntp_servers is defined
+  ansible.builtin.set_fact:
+    timesync_dhcp_ntp_servers: "{{ common_dhcp_ntp_servers }}"
+
+- name: Set the step level
+  when: common_ntp_step_threshold is defined
+  ansible.builtin.set_fact:
+    timesync_step_threshold: "{{ common_ntp_step_threshold }}"
+
+- name: Set the max distance
+  when: common_ntp_max_distance is defined
+  ansible.builtin.set_fact:
+    timesync_max_distance: "{{ common_ntp_max_distance }}"
+
+- name: Set the minimum sources
+  when: common_ntp_min_sources is defined
+  ansible.builtin.set_fact:
+    timesync_min_sources: "{{ common_ntp_min_sources }}"
+
+- name: Set the hardware interfaces
+  when: common_ntp_hwts_interfaces is defined
+  ansible.builtin.set_fact:
+    timesync_ntp_hwts_interfaces: "{{ common_ntp_hwts_interfaces }}"
+
+- name: Set the NTP provider
+  when: common_ntp_provider is defined
+  ansible.builtin.set_fact:
+    timesync_ntp_provider: "{{ common_ntp_provider }}"
+
+- name: Set custom chrony settings
+  when: common_chrony_custom_settings is defined
+  ansible.builtin.set_fact:
+    timesync_chrony_custom_settings: "{{ common_chrony_custom_settings }}"
+
+- name: Set the transactional update consent
+  when: common_transactional_update_reboot_ok is defined
+  ansible.builtin.set_fact:
+    timesync_transactional_update_reboot_ok: "{{ common_transactional_update_reboot_ok }}"
+
+- name: Set the NTP IP family
+  when: common_ntp_ip_family is defined
+  ansible.builtin.set_fact:
+    timesync_ntp_ip_family: "{{ common_ntp_ip_family }}"
+
+- name: Configure the NTP client
+  ansible.builtin.include_role:
+    name: fedora.linux_system_roles.timesync
+# vim: set ft=yaml.ansible:

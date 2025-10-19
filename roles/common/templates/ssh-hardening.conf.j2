@@ -1,0 +1,14 @@
+Banner /etc/issue
+ChallengeResponseAuthentication no
+ClientAliveInterval 300
+DisableForwarding yes
+GSSAPIAuthentication no
+HostbasedAuthentication no
+LogLevel VERBOSE
+PasswordAuthentication {{ common_ssh_authorized_key is defined | ternary("no", "yes") }}
+PermitEmptyPasswords no
+PermitRootLogin no
+PrintMotd yes
+PrintLastLog yes
+TCPKeepAlive no
+RekeyLimit 512M 1h

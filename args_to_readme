@@ -1,0 +1,278 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "mashumaro[yaml]",
+#     "pytablewriter",
+#     "pyyaml",
+#     "rich-click",
+# ]
+# ///
+from __future__ import annotations
+import rich_click as click
+from rich_click import rich_click as rc
+from mashumaro.mixins.yaml import DataClassYAMLMixin
+from mashumaro.config import BaseConfig
+from dataclasses import dataclass
+from pathlib import Path
+import re
+import json
+from typing import List, Dict, Optional, Union, Tuple
+from pytablewriter import MarkdownTableWriter
+from pytablewriter.style import Style
+
+rc.TEXT_MARKUP = "rich"
+rc.STYLE_OPTION = "bold magenta"
+rc.STYLE_ARGUMENT = "bold magenta"
+rc.STYLE_COMMAND = "bold cyan"
+rc.STYLE_SWITCH = "bold magenta"
+rc.STYLE_METAVAR = "bold yellow"
+rc.STYLE_METAVAR_SEPARATOR = "dim white"
+rc.STYLE_USAGE = "bold yellow"
+rc.STYLE_USAGE_COMMAND = "bold cyan"
+rc.STYLE_HELPTEXT_FIRST_LINE = "bold"
+rc.STYLE_HELPTEXT = ""
+rc.STYLE_OPTION_DEFAULT = "italic yellow"
+rc.STYLE_REQUIRED_SHORT = "bold red"
+rc.STYLE_REQUIRED_LONG = "italic red"
+rc.STYLE_OPTIONS_PANEL_BORDER = ""
+rc.STYLE_COMMANDS_PANEL_BORDER = ""
+
+
+@dataclass
+class ArgOpt(DataClassYAMLMixin):
+    type: str
+    description: Optional[str | List[str]] = None
+    version_added: Optional[str] = None
+    required: Optional[bool] = None
+    default: Optional[
+        Union[
+            str,
+            int,
+            bool,
+            List[
+                Optional[
+                    Union[
+                        str,
+                        int,
+                        bool,
+                        Dict[str, Union[str, int, bool, List[Union[str, int, bool]]]],
+                    ]
+                ]
+            ],
+            Dict[str, Union[str, int, bool, List[Union[str, int, bool]]]],
+        ]
+    ] = None
+    choices: Optional[List[str]] = None
+    elements: Optional[str] = None
+    options: Optional[Dict[str, "ArgOpt"]] = None
+
+
+@dataclass
+class ArgumentSpec(DataClassYAMLMixin):
+    options: Dict[str, ArgOpt]
+    short_description: Optional[str] = None
+    description: Optional[str | List[str]] = None
+    version_added: Optional[str] = None
+    author: Optional[str | List[str]] = None
+
+
+@dataclass
+class ArgumentSpecs(DataClassYAMLMixin):
+    argument_specs: Dict[str, ArgumentSpec]
+
+    class Config(BaseConfig):
+        debug = True
+        omit_none = True
+        omit_default = True
+        allow_postponed_evaluation = False
+        forbid_extra_keys = False
+
+
+doc_funcs = re.compile(
+    r"((?P<code>C|RV|V|E)|(?P<opt>O)|(?P<url>U)|(?P<module>M)|(?P<plugin>P)|(?P<bold>B)|(?P<italic>I))\((?P<wrap>[^)]+)\)|((?P<role>R)|(?P<link>L))\((?P<text>[^)]+),(?P<dest>[^)]+)\)|(?P<line>HORIZONTALLINE)",
+    re.MULTILINE,
+)
+
+
+def format_funcs(text: str) -> str:
+    def repl(m: re.Match) -> str:
+        if m.group("code"):
+            return f"`{m.group('wrap')}`"
+        elif m.group("opt"):
+            return f"[`{m.group('wrap')}`](#{m.group('wrap')})"
+        elif m.group("url"):
+            return f"[{m.group('wrap')}]({m.group('wrap')})"
+        elif m.group("module"):
+            parts = m.group("wrap").split(".")
+            url = ""
+            parts_len = len(parts)
+            if parts_len == 3:
+                url = f"https://galaxy.ansible.com/ui/repo/published/{parts[0]}/{parts[1]}/content/module/{parts[2]}/"
+            elif parts_len == 2:
+                url = f"https://galaxy.ansible.com/ui/repo/published/{parts[0]}/{parts[1]}/"
+            elif parts_len == 1:
+                url = f"https://galaxy.ansible.com/ui/namespaces/{parts[0]}/"
+            else:
+                raise ValueError("Module reference must include at least a namespace.")
+            return f"[`{m.group('wrap')}`]({url})"
+        elif m.group("plugin"):
+            return f"`{m.group('wrap')}`"
+        elif m.group("bold"):
+            return f"**{m.group('wrap')}**"
+        elif m.group("italic"):
+            return f"_{m.group('wrap')}_"
+        elif m.group("role"):
+            parts = m.group("dest").split(".")
+            url = ""
+            parts_len = len(parts)
+            if parts_len == 3:
+                url = f"https://galaxy.ansible.com/ui/repo/published/{parts[0]}/{parts[1]}/content/role/{parts[2]}/"
+            elif parts_len == 2:
+                url = f"https://galaxy.ansible.com/ui/repo/published/{parts[0]}/{parts[1]}/"
+            elif parts_len == 1:
+                url = f"../roles/{parts[0]}/README.md"
+            return f"[{m.group('text')}]({url})"
+        elif m.group("link"):
+            return f"[{m.group('text')}]({m.group('dest')})"
+        elif m.group("line"):
+            return "\n---\n"
+        else:
+            return m.group(0)
+
+    return doc_funcs.sub(repl, text)
+
+
+def format_description(description: str | List[str]) -> str:
+    desc = ""
+    if isinstance(description, list):
+        desc += description[0]
+        if len(description) > 1:
+            desc += " " + " ".join(description[1:])
+    else:
+        desc = description
+    return format_funcs(desc.replace("\n", " ").strip())
+
+
+def option_to_table(role: str, name: str, opt: ArgOpt) -> List[str]:
+    table: List[str] = []
+    table.append(f'<a name="{name}"></a>`{name}`')
+    if opt.choices:
+        table.append(", ".join([f"`{choice}`" for choice in opt.choices]))
+    elif opt.type == "list" and opt.elements is not None:
+        if opt.elements == "dict" and opt.options is not None:
+            table.append(f"[`{opt.type}[{opt.elements}]`](#{role}-{name})")
+        else:
+            table.append(f"`{opt.type}[{opt.elements}]`")
+    else:
+        if opt.type == "dict" and opt.options is not None:
+            table.append(f"[`{opt.type}`](#{role}-{name})")
+        else:
+            table.append(f"`{opt.type}`")
+    if opt.required is not None and opt.required is True:
+        table.append("Yes")
+    else:
+        table.append("No")
+    if opt.default is not None:
+        table.append(f"`{json.dumps(opt.default)}`")
+    else:
+        table.append("")
+    if opt.description is not None:
+        table.append(format_description(opt.description))
+    else:
+        table.append("")
+    return table
+
+
+def arg_spec_table(role: str, name: str, spec: ArgumentSpec) -> List[str]:
+    out: List[Tuple[str, List[List[str]]]] = []
+    header = ""
+    if name == "main":
+        header = f"### {role}\n\n"
+    else:
+        header = f"### {role}: {name}\n\n"
+    if spec.description is not None:
+        header += format_description(spec.description) + "\n\n"
+    elif spec.short_description is not None:
+        header += format_description(spec.short_description) + "\n\n"
+
+    table: List[List[str]] = []
+    for opt_name, opt in spec.options.items():
+        table.append(option_to_table(role, opt_name, opt))
+        if opt.options is not None:
+            subheader = f"#### {role}-{opt_name}\n\n"
+            subtable: List[List[str]] = []
+            for subopt_name, subopt in opt.options.items():
+                subtable.append(
+                    option_to_table(role + "-" + opt_name, subopt_name, subopt)
+                )
+            out.append((subheader, subtable))
+    out.append((header, table))
+    text: List[str] = []
+    out.reverse()
+    for opt_header, opt_table in out:
+        writer = MarkdownTableWriter(
+            headers=["Name", "Type", "Required", "Default", "Description"],
+            value_matrix=opt_table,
+            margin=1,
+            flavor="github",
+            column_styles=[
+                Style(align="left"),
+                Style(align="center"),
+                Style(align="center"),
+                Style(align="center"),
+                Style(align="left"),
+            ],
+        )
+        text.append(opt_header + writer.dumps() + "\n\n")
+    return text
+
+
+@click.command()
+@click.argument(
+    "role",
+    type=str,
+)
+def main(
+    role: str,
+) -> None:
+    """Update the [cyan]README.md[/] for a given role based on its [cyan]argument_specs.yml[/] file.
+
+
+    [bold yellow]Arguments:[/]
+        [bold magenta]role[/]: The name of the role to process [italic](e.g., [cyan]my_role[/])[/].
+              This role should exist in the [bold cyan]roles/[/] directory.
+    """
+    root_dir = Path(__file__).parent
+    arg_spec_file = root_dir / "roles" / role / "meta" / "argument_specs.yml"
+    readme_file = root_dir / "roles" / role / "README.md"
+    click.echo(
+        f"Processing {arg_spec_file.relative_to(root_dir)} to update {readme_file.relative_to(root_dir)}"
+    )
+    if not arg_spec_file.exists():
+        raise FileNotFoundError(f"{arg_spec_file} does not exist.")
+    with open(arg_spec_file, "r") as f:
+        argument_specs = ArgumentSpecs.from_yaml(f.read())
+    if readme_file.exists():
+        with open(readme_file, "r") as f:
+            readme = f.read()
+        readme_parts = readme.split("## Argument Reference")
+        if len(readme_parts) > 2:
+            raise ValueError(
+                "README.md contains multiple '## Argument Reference' sections. Please ensure there is only one."
+            )
+        readme_header = readme_parts[0].rstrip() + "\n\n"
+    else:
+        readme_header = f"# {role}\n\n"
+    readme_body: List[str] = []
+    for entrypoint, spec in argument_specs.argument_specs.items():
+        readme_body.extend(arg_spec_table(role, entrypoint, spec))
+    new_readme = readme_header + "## Argument Reference\n\n" + "".join(readme_body)
+    click.echo(f"Writing updated README to {readme_file.relative_to(root_dir)}")
+    with open(readme_file, "w") as f:
+        f.write(new_readme)
+
+
+if __name__ == "__main__":
+    main()
+# vim: set ft=python:

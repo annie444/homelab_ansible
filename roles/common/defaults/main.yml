@@ -1,0 +1,73 @@
+---
+# defaults file for annie444.homelab.common
+
+# DNS defaults
+common_dns_over_tls: opportunistic
+
+# Hardening defaults
+# Used in:
+# - PAM
+common_os_hardening: true
+common_os_hardening_disable_kernel_module_loading: false
+common_os_hardening_disable_user_namespaces: false
+common_os_hardening_interactive_timeout: 600
+common_os_hardening_fips: false
+common_os_hardening_kernel_ia32_emulation: false
+common_os_hardening_localpkg_gpgcheck: true
+
+# PAM defaults
+common_login_password_min_length: 12
+
+# SSH Hardening defaults
+common_ssh_hardening: true
+
+# DNF defaults
+common_dnf_automatic_on_shutdown: false
+common_dnf_automatic_restart: true
+common_dnf_automatic_upgrade_type: default
+common_dnf_fastestmirror: false
+common_dnf_install_weak_deps: false
+common_dnf_keepcache: false
+common_dnf_nodocs: true
+
+# Hardware hardening
+common_allow_bluetooth: false
+common_allow_thunderbolt: false
+common_allow_usb: true
+common_cpu_vulnerabilities_mitigation: auto
+
+# Fail2Ban defaults
+common_fail2ban_action: "%(action_mwl)s"
+
+# FS defaults
+common_fs_cache: false
+
+# GRUB defaults
+common_grub_auto_hide: false
+common_grub_hidden_timeout: 0
+common_grub_save_default: false
+common_grub_timeout: 1
+
+# VM Guest agent defaults
+common_guest_incus: false
+common_guest_qemu: false
+
+# Mail defaults
+common_mail_smtp_inet_interfaces: 127.0.0.1
+common_mail_smtp_port: 465
+
+# NetData defaults
+common_netdata_cloud_only: false
+common_netdata_enable: false
+common_netdata_ephemeral_node: false
+
+# NTP defaults
+common_dhcp_ntp_servers: false
+common_ntp_provider: chrony
+common_ntp_min_sources: 1
+common_transactional_update_reboot_ok: true
+common_ntp_ip_family: all
+
+# MAC address hardening
+common_random_mac_wifi: random
+common_random_mac_ethernet: stable
