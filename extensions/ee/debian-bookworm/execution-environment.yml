@@ -20,4 +20,7 @@ options:
 additional_build_steps:
   prepend_base:
     - ENV DEBIAN_FRONTEND=noninteractive
-    - RUN $PKGMGR -y -q install python3-dev
+    - RUN export DEBIAN_FRONTEND=noninteractive && \
+      $PKGMGR -y update && \
+      $PKGMGR -y -q install python3-dev && \
+      $PKGMGR -y clean
