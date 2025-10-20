@@ -143,8 +143,6 @@
     state: started
     daemon_reload: true
   when: not (common_dnf_automatic_on_shutdown | bool)
-  tags:
-    - molecule-notest
 
 - name: Ensure dnf-automatic-on-shutdown is installed
   ansible.builtin.copy:
@@ -162,8 +160,6 @@
     enabled: true
     daemon_reload: true
   when: common_dnf_automatic_on_shutdown | bool
-  tags:
-    - molecule-notest
 
 - name: Ensure dnf-automatic-on-shutdown service is not present
   ansible.builtin.file:
