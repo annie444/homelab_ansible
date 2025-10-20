@@ -60,6 +60,10 @@
     file: dnf_upgrade.yml
   when: not (_ostree | bool)
 
+- name: Firewall configuration
+  ansible.builtin.include_tasks:
+    file: firewall.yml
+
 - name: Auditd configuration
   ansible.builtin.include_tasks:
     file: audit.yml
@@ -113,13 +117,4 @@
   ansible.builtin.include_tasks:
     file: mail.yml
   when: common_mail_smtp_host is defined
-
-- name: Netdata configuration
-  ansible.builtin.include_tasks:
-    file: netdata.yml
-  when: common_netdata_enable | bool
-
-- name: Firewall configuration
-  ansible.builtin.include_tasks:
-    file: firewall.yml
 # vim: set ft=yaml.ansible:

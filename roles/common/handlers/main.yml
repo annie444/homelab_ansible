@@ -29,3 +29,23 @@
   changed_when: false
   listen: kernel_modules_disabled
   when: common_os_hardening_disable_kernel_module_loading | bool
+
+- name: Ensure Postfix aliases are reloaded
+  ansible.builtin.command: newaliases
+  changed_when: false
+  listen: postfix reload aliases
+
+- name: Ensure postfix service is restarted
+  ansible.builtin.systemd:
+    name: postfix
+    state: restarted
+    enabled: true
+  listen: restart postfix
+
+- name: Ensure postfix service is reloaded and restarted
+  ansible.builtin.systemd:
+    name: postfix
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  listen: reload postfix

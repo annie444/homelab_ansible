@@ -1,0 +1,119 @@
+---
+- name: Verify
+  hosts: molecule
+  gather_facts: true
+  become: true
+  become_user: root
+  tasks:
+    - name: Load the default vars
+      ansible.builtin.include_vars:
+        file: ../../default/vars/vars.yml
+
+    - name: Set the test name
+      ansible.builtin.set_fact:
+        test_name: "{{ molecule_scenario_name | replace('integration_', '') }}"
+
+    - name: Set the test path
+      ansible.builtin.set_fact:
+        test_path: "{{ integration_tests_path }}{{ test_name }}"
+
+    - name: Load the role's default vars
+      ansible.builtin.include_vars:
+        file: "{{ test_path }}/defaults/main.yml"
+
+    - name: Load the role's extra vars
+      ansible.builtin.include_vars:
+        file: "{{ test_path }}/vars/main.yml"
+
+    - name: Check for test vars
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ test_path }}/tests/vars.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: vars_test
+
+    - name: Set the test vars
+      when: vars_test.stat.exists
+      ansible.builtin.include_vars:
+        file: "{{ test_path }}/tests/vars.yml"
+
+    - name: "Check test vars for {{ integration_flavor }}"
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ test_path }}/tests/vars-{{ integration_flavor }}.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: vars_test
+
+    - name: "Set test vars for {{ integration_flavor }}"
+      when: vars_test.stat.exists
+      ansible.builtin.include_vars:
+        file: "{{ test_path }}/tests/vars-{{ integration_flavor }}.yml"
+
+    - name: "Check test vars for {{ integration_subset }}"
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ test_path }}/tests/vars-{{ integration_subset }}.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: vars_test
+
+    - name: "Set test vars for {{ integration_subset }}"
+      when: vars_test.stat.exists
+      ansible.builtin.include_vars:
+        file: "{{ test_path }}/tests/vars-{{ integration_subset }}.yml"
+
+    - name: Check for test files
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ test_path }}/tests/test.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: check_test
+
+    - name: Post integration tests
+      when: check_test.stat.exists
+      ansible.builtin.include_tasks: "{{ test_path }}/tests/test.yml"
+
+    - name: "Check test files for {{ integration_flavor }}"
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ test_path }}/tests/test-{{ integration_flavor }}.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: check_test
+
+    - name: "Post integration tests for {{ integration_flavor }}"
+      when: check_test.stat.exists
+      ansible.builtin.include_tasks: "{{ test_path }}/tests/test-{{ integration_flavor }}.yml"
+
+    - name: "Check test files for {{ integration_subset }}"
+      delegate_to: localhost
+      become: false
+      ansible.builtin.stat:
+        path: "{{ test_path }}/tests/test-{{ integration_subset }}.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: check_test
+
+    - name: "Post integration tests for {{ integration_subset }}"
+      when: check_test.stat.exists
+      ansible.builtin.include_tasks: "{{ test_path }}/tests/test-{{ integration_subset }}.yml"

@@ -1,0 +1,6 @@
+---
+collection_root: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/.."
+integration_tests_path: "{{ collection_root }}/roles/"
+molecule_scenario_name: "{{ molecule_scenario_directory | ansible.builtin.basename }}"
+integration_flavor: "{{ ('fedora' in inventory_hostname) | ansible.builtin.ternary('fedora', 'rhel') }}"
+integration_subset: "{{ inventory_hostname | replace(molecule_scenario_directory | ansible.builtin.basename | replace('integration_', '') ~ '-', '') }}"

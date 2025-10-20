@@ -1,0 +1,52 @@
+---
+- name: Configure the firewall with trusted sources
+  when: common_trusted_firewalld_source is defined
+  block:
+    - name: Set the firewall defaults
+      ansible.builtin.set_fact:
+        common_firewall:
+          - zone: admin
+            state: present
+
+    - name: Set the firewall trusted sources
+      ansible.builtin.set_fact:
+        common_firewall: "{{ common_firewall | default([]) + [{
+          'zone': 'admin',
+          'state': 'enabled',
+          'source': item,
+          }] }}"
+      loop: "{{ common_trusted_firewalld_source }}"
+
+    - name: Set the firewall trusted services
+      ansible.builtin.set_fact:
+        common_firewall: "{{ common_firewall | default([]) + [{
+          'zone': 'admin',
+          'state': 'enabled',
+          'service': 'ssh',
+          }] }}"
+
+    - name: Disable public SSH
+      ansible.builtin.set_fact:
+        common_firewall: "{{ common_firewall | default([]) + [{
+          'zone': 'public',
+          'state': 'disabled',
+          'service': 'ssh',
+          }] }}"
+
+    - name: Configure firewalld
+      ansible.builtin.include_role:
+        name: fedora.linux_system_roles.firewall
+      vars:
+        firewall_disable_conflicting_services: true
+        firewall: "{{ common_firewall }}"
+
+- name: Configure public only firewall
+  when: not common_trusted_firewalld_source is defined
+  ansible.builtin.include_role:
+    name: fedora.linux_system_roles.firewall
+  vars:
+    firewall_disable_conflicting_services: true
+    firewall:
+      - zone: public
+        service: ssh
+        state: "enabled"

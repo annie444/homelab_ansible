@@ -1,0 +1,10 @@
+---
+common_ntp_servers:
+  - hostname: 1.fedora.pool.ntp.org
+    pool: true
+common_mail_smtp_host: mail.local
+common_mail_smtp_send_to: root@mail.local
+common_mail_smtp_password: "password"
+common_mail_smtp_user: "user"
+common_ssh_authorized_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE68O8lsw2vvacU/B891eNU1Xp2X+YggRD9x9kA34OqJ"
+common_trusted_firewalld_source: 192.168.0.0/24

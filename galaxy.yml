@@ -8,9 +8,9 @@ name: "homelab"
 version: 1.0.0
 readme: README.md
 authors:
-  - your name <example@domain.com>
+  - Analetta Ehler <annie.ehler.4@gmail.com>
 
-description: your collection description
+description: Homelab collection
 license_file: LICENSE
 
 # TO-DO: update the tags based on your content type
@@ -20,11 +20,13 @@ tags: ["linux", "tools"]
 dependencies:
   "ansible.utils": "*" # note: "*" selects the latest version available
   "fedora.linux_system_roles": "*"
+  "ansible.posix": "*"
+  "community.general": "*"
 
-repository: https://github.com/annie444/homelab-ansible
-documentation: https://annie444.github.io/homelab-ansible
-homepage: https://github.com/annie444/homelab-ansible
-issues: https://github.com/annie444/homelab-ansible/issue
+repository: https://github.com/annie444/homelab_ansible
+documentation: https://annie444.github.io/homelab_ansible
+homepage: https://github.com/annie444/homelab_ansible
+issues: https://github.com/annie444/homelab_ansible/issue
 
 # A list of file glob-like patterns used to filter any files or directories that should not be included in the build
 # artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This

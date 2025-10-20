@@ -1,0 +1,35 @@
+---
+- name: Ensure NFS client requirements are installed
+  ansible.builtin.dnf:
+    state: present
+    name: nfs-utils
+    install_weak_deps: false
+  retries: 10
+  delay: 1
+  register: _
+  until: _ is successful
+  when: not (_ostree | bool)
+
+- name: Ensure NFS client requirements are installed
+  community.general.rpm_ostree_pkg:
+    state: present
+    name: nfs-utils
+  when: _ostree | bool
+
+- name: Ensure NFS target mount directories are present
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+  loop: "{{ common_nfs_mount }}"
+
+- name: Mount NFS shares
+  ansible.posix.mount:
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    opts: "{{ item.opts | default(omit) }}"
+    fstype: nfs
+    state: "{{ item.state | default('mounted') }}"
+  loop: "{{ common_nfs_mount }}"
