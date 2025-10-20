@@ -173,10 +173,12 @@
     - _ostree | bool
 
 - name: Ensure rngd is enabled
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: rngd
     enabled: "{{ common_os_hardening | bool }}"
     state: "{{ (common_os_hardening | bool) | ternary('started', 'stopped') }}"
+  tags:
+    - molecule-notest
 
 - name: Ensure vulnerable or rarely used Kernel modules loading is disallowed
   ansible.builtin.template:
@@ -219,18 +221,22 @@
   register: _disable_random_mac_address
 
 - name: Ensure networkd is restarted
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: systemd-networkd
     state: restarted
   changed_when: false
   when: _ipv6_privacy_extensions.changed or _disable_hardening.changed # noqa no-handler
+  tags:
+    - molecule-notest
 
 - name: Ensure network manager is restarted
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: NetworkManager
     state: restarted
   changed_when: false
   when: _random_mac_address.changed or _disable_random_mac_address.changed # noqa no-handler
+  tags:
+    - molecule-notest
 
 - name: Ensure Kernel sysctl is reloaded
   ansible.builtin.command: /usr/sbin/sysctl --system

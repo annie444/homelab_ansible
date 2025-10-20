@@ -36,16 +36,20 @@
   listen: postfix reload aliases
 
 - name: Ensure postfix service is restarted
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: postfix
     state: restarted
     enabled: true
   listen: restart postfix
+  tags:
+    - molecule-notest
 
 - name: Ensure postfix service is reloaded and restarted
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: postfix
     state: restarted
     enabled: true
     daemon_reload: true
   listen: reload postfix
+  tags:
+    - molecule-notest

@@ -137,12 +137,14 @@
       value: "{{ (_dnf_automatic_restart_install | bool) | ternary('when-needed', 'never') }}"
 
 - name: Ensure dnf-automatic timer is configured
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: dnf-automatic.timer
     enabled: true
     state: started
     daemon_reload: true
   when: not (common_dnf_automatic_on_shutdown | bool)
+  tags:
+    - molecule-notest
 
 - name: Ensure dnf-automatic-on-shutdown is installed
   ansible.builtin.copy:
@@ -154,12 +156,14 @@
   when: common_dnf_automatic_on_shutdown | bool
 
 - name: Ensure dnf-automatic-on-shutdown service is configured
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: dnf-automatic-on-shutdown.service
     state: started
     enabled: true
     daemon_reload: true
   when: common_dnf_automatic_on_shutdown | bool
+  tags:
+    - molecule-notest
 
 - name: Ensure dnf-automatic-on-shutdown service is not present
   ansible.builtin.file:
