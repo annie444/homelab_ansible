@@ -1,0 +1,72 @@
+---
+- name: Ensure Fail2Ban is installed
+  ansible.builtin.dnf:
+    state: present
+    name:
+      - fail2ban-firewalld
+      - fail2ban-sendmail
+      - whois
+    install_weak_deps: false
+  retries: 10
+  delay: 1
+  register: _
+  until: _ is successful
+  when: not (_ostree | bool)
+
+- name: Ensure Fail2Ban is installed
+  community.general.rpm_ostree_pkg:
+    state: present
+    name:
+      - fail2ban-firewalld
+      - fail2ban-sendmail
+      - whois
+  when: _ostree | bool
+
+- name: Ensure Fail2ban is configured
+  ansible.builtin.copy:
+    src: fail2ban.local
+    dest: /etc/fail2ban/fail2ban.d/fail2ban.local
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure Fail2ban jails are configured
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.d/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure Fail2ban start/stop alerts are disabled
+  ansible.builtin.copy:
+    src: sendmail-common.local
+    dest: /etc/fail2ban/action.d/sendmail-common.local
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure Fail2ban service parent directory is present
+  ansible.builtin.file:
+    path: /etc/systemd/system/fail2ban.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure Fail2ban systemd service configuration is present
+  ansible.builtin.copy:
+    src: fail2ban_service.conf
+    dest: /etc/systemd/system/fail2ban.service.d/fail2ban.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: _fail2ban_systemd
+
+- name: Ensure Fail2ban service is restarted and enabled at boot
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted
+    enabled: true
+    daemon_reload: "{{ _fail2ban_systemd.changed | bool }}"
+  changed_when: false

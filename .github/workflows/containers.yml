@@ -34,14 +34,10 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-          - debian-bookworm
-          - debian-trixie
           - fedora-41
           - fedora-42
           - rhel-10
           - rhel-9
-          - ubuntu-jammy
-          - ubuntu-noble
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -94,5 +90,7 @@ jobs:
           context: ./extensions/ee/${{ matrix.environment }}/context
           platforms: linux/amd64,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           tags: ${{ steps.meta.outputs.tags }}
           push: true
+          sbom: true

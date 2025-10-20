@@ -19,4 +19,4 @@ options:
 
 additional_build_steps:
   prepend_base:
-    - RUN $PKGMGR -y -q install python3-devel
+    - RUN $PKGMGR -y -q install python3-devel sudo

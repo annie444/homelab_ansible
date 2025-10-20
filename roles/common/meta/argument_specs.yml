@@ -457,51 +457,6 @@ argument_specs:
         description: >
           If specified, redirect all root mails to the specified email address.
 
-      common_netdata_claim_rooms:
-        type: str
-        required: false
-        description: >
-          If specified, claim Netdata node in the specifid room.
-          O(common_netdata_claim_token) is required. Value is the room
-          UUID in Netdata cloud.
-      common_netdata_claim_token:
-        type: str
-        required: false
-        description: >
-          If specified, claim Netdata node in the cloud using the specified
-          token. Value is the token from the Netdata cloud.
-          O(common_netdata_claim_rooms) is required.
-      common_netdata_cloud_only:
-        type: bool
-        default: false
-        description: >
-          If C(true), Netdata dashboard is only reachable from Netdata cloud.
-          O(common_netdata_claim_token) is required.
-      common_netdata_enable:
-        type: bool
-        default: false
-        description: If C(true), install Netdata agent.
-      common_netdata_ephemeral_node:
-        type: bool
-        default: false
-        description: >
-          If C(true), node is configured as "ephemeral" instead of "permanent"
-          (Should be set to true to any server that is stopped frequently).
-      common_netdata_stream_api_key:
-        type: str
-        required: false
-        description: >
-          If specified, configure Netdata stream using the specified API Key.
-          O(common_netdata_stream_destination) is required.
-      common_netdata_stream_destination:
-        type: str
-        required: false
-        description: >
-          If specified, configure Netdata stream to the specified parent
-          destination. If configured, and O(common_netdata_claim_token) is not
-          configured, configure the agent as a thin agent that only stream to
-          the parent. O(common_netdata_stream_api_key) is required.
-
       common_nfs_mount:
         type: list
         elements: dict
