@@ -7,11 +7,15 @@ concurrency:
 
 on: # yamllint disable-line rule:truthy
   pull_request:
-    branches: [main]
+    branches:
+      - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
   # TO-DO: Below is an example cron scheduler. Uncomment and tweak it as per your requirement
   # schedule:
-    # - cron: '0 0 * * *'
+  # - cron: '0 0 * * *'
 
 jobs:
   changelog:

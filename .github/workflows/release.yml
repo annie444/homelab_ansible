@@ -3,7 +3,8 @@ name: Release annie444.homelab
 
 on: # yamllint disable-line rule:truthy
   release:
-    types: [published]
+    types:
+      - published
 
 jobs:
   release_automation_hub:
