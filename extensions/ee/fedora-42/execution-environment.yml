@@ -3,7 +3,7 @@ version: 3
 
 images:
   base_image:
-    name: registry.fedoraproject.org/fedora-minimal:42
+    name: registry.fedoraproject.org/fedora-bootc:42
 
 dependencies:
   ansible_runner:
