@@ -19,7 +19,7 @@ options:
 
 additional_build_steps:
   prepend_base:
-    - RUN $PKGMGR -y -q install python3-devel sudo
+    - RUN $PKGMGR -y -q install python3-devel sudo util-linux
     - RUN groupadd --gid 1000 ansible
     - RUN useradd --uid 1000 --create-home --gid ansible --groups wheel ansible
     - RUN sed -i "/^%wheel/s/ALL\$/NOPASSWD:ALL/g" /etc/sudoers
