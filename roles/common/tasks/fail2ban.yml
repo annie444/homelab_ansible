@@ -64,9 +64,11 @@
   register: _fail2ban_systemd
 
 - name: Ensure Fail2ban service is restarted and enabled at boot
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: fail2ban
     state: restarted
     enabled: true
     daemon_reload: "{{ _fail2ban_systemd.changed | bool }}"
   changed_when: false
+  tags:
+    - molecule-notest

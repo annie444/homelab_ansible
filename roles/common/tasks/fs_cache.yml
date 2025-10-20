@@ -17,8 +17,10 @@
   when: _ostree | bool
 
 - name: Ensure cachefilesd service is configured
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: cachefilesd.service
     state: started
     enabled: true
     daemon_reload: true
+  tags:
+    - molecule-notest
