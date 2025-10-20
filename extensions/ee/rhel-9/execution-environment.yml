@@ -3,7 +3,7 @@ version: 3
 
 images:
   base_image:
-    name: docker.io/redhat/ubi9:latest
+    name: docker.io/redhat/ubi9-init:latest
 
 dependencies:
   ansible_runner:
