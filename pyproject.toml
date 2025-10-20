@@ -20,6 +20,12 @@ test = [
     "pytest-ansible>=25.8.0",
     "pytest-xdist>=3.8.0",
 ]
+scripts = [
+    "mashumaro[yaml]>=3.17",
+    "pytablewriter>=1.2.1",
+    "pyyaml>=6.0.2",
+    "rich-click>=1.9.3",
+]
 
 [tool.black]
 line-length = 100
