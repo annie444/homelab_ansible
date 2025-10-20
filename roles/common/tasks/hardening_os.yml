@@ -235,8 +235,6 @@
     state: restarted
   changed_when: false
   when: _random_mac_address.changed or _disable_random_mac_address.changed # noqa no-handler
-  tags:
-    - molecule-notest
 
 - name: Ensure Kernel sysctl is reloaded
   ansible.builtin.command: /usr/sbin/sysctl --system

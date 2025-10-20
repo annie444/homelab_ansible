@@ -41,8 +41,6 @@
     state: restarted
     enabled: true
   listen: restart postfix
-  tags:
-    - molecule-notest
 
 - name: Ensure postfix service is reloaded and restarted
   ansible.builtin.systemd_service:
@@ -51,5 +49,3 @@
     enabled: true
     daemon_reload: true
   listen: reload postfix
-  tags:
-    - molecule-notest

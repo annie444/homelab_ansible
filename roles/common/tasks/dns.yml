@@ -45,8 +45,6 @@
     name: systemd-resolved
     state: restarted
   changed_when: false
-  tags:
-    - molecule-notest
 
 - name: Ensure host domain is set in /etc/hosts with localhost IPv6
   ansible.builtin.lineinfile:
