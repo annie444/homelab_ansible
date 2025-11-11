@@ -1,4 +1,7 @@
 # https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
+
+local_test/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -165,3 +168,4 @@ cython_debug/
 
 # Ansible
 .ansible/
+local_test/test.yml
