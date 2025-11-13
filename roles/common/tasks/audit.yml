@@ -8,9 +8,9 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
-  when: not (_ostree | bool)
+  register: common_install_auditd
+  until: common_install_auditd is successful
+  when: not (common_ostree | bool)
 
 - name: Ensure auditd plugins are installed
   community.general.rpm_ostree_pkg:
@@ -18,12 +18,12 @@
     name:
       - audispd-plugins
       - rpm-plugin-audit
-  when: _ostree | bool
+  when: common_ostree | bool
 
 - name: Check if Auditd configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/audit/auditd.conf.rpmnew
-  register: _auditd_conf_rpmnew
+  register: common_auditd_conf_rpmnew
 
 - name: Ensure latest Auditd configuration from RPM is used
   ansible.builtin.copy:
@@ -33,12 +33,12 @@
     owner: root
     group: root
     mode: "0640"
-  when: _auditd_conf_rpmnew.stat.exists
+  when: common_auditd_conf_rpmnew.stat.exists
 
 - name: Check if Auditd syslog plugin configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/audit/plugins.d/syslog.conf.rpmnew
-  register: _auditd_syslog_conf_rpmnew
+  register: common_auditd_syslog_conf_rpmnew
 
 - name: Ensure latest Auditd syslog plugin configuration from RPM is used
   ansible.builtin.copy:
@@ -48,7 +48,7 @@
     owner: root
     group: root
     mode: "0644"
-  when: _auditd_syslog_conf_rpmnew.stat.exists
+  when: common_auditd_syslog_conf_rpmnew.stat.exists
 
 - name: Ensure Auditd is configured
   ansible.builtin.lineinfile:
@@ -85,7 +85,7 @@
 - name: List privileged binaries on the system
   ansible.builtin.command: "find /usr -xdev -type f -perm -4000 -o -type f -perm -2000"
   changed_when: false
-  register: _audit_find_privileged_paths
+  register: common_audit_find_privileged_paths
   when: common_os_hardening | bool
 
 - name: Ensure hardened audit rules are installed

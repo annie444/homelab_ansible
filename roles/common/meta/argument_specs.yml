@@ -369,7 +369,7 @@ argument_specs:
         type: bool
         default: false
         description: If C(true) configure Grub to auto-hide.
-      common_grub_cmdline_linux_default:
+      commoncommon_grub_cmdline_linux_default:
         type: str
         required: false
         description: >

@@ -53,12 +53,12 @@
 - name: DNF configuration
   ansible.builtin.include_tasks:
     file: dnf.yml
-  when: not (_ostree | bool)
+  when: not (common_ostree | bool)
 
 - name: DNF OS upgrade
   ansible.builtin.include_tasks:
     file: dnf_upgrade.yml
-  when: not (_ostree | bool)
+  when: not (common_ostree | bool)
 
 - name: Firewall configuration
   ansible.builtin.include_tasks:
