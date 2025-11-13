@@ -9,9 +9,9 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
-  when: not (_ostree | bool)
+  register: common_install_fail2ban
+  until: common_install_fail2ban is successful
+  when: not (common_ostree | bool)
 
 - name: Ensure Fail2Ban is installed
   community.general.rpm_ostree_pkg:
@@ -20,7 +20,7 @@
       - fail2ban-firewalld
       - fail2ban-sendmail
       - whois
-  when: _ostree | bool
+  when: common_ostree | bool
 
 - name: Ensure Fail2ban is configured
   ansible.builtin.copy:
@@ -61,12 +61,12 @@
     owner: root
     group: root
     mode: "0644"
-  register: _fail2ban_systemd
+  register: common_fail2ban_systemd
 
 - name: Ensure Fail2ban service is restarted and enabled at boot
   ansible.builtin.systemd_service:
     name: fail2ban
     state: restarted
     enabled: true
-    daemon_reload: "{{ _fail2ban_systemd.changed | bool }}"
+    daemon_reload: "{{ common_fail2ban_systemd.changed | bool }}"
   changed_when: false

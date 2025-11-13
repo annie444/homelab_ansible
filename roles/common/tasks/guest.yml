@@ -6,15 +6,15 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
-  when: not (_ostree | bool)
+  register: common_install_qemu_guest
+  until: common_install_qemu_guest is successful
+  when: not (common_ostree | bool)
 
 - name: Ensure Qemu guest agent is installed
   community.general.rpm_ostree_pkg:
     state: "{{ common_guest_qemu | bool | ternary('present', 'absent') }}"
     name: qemu-guest-agent
-  when: _ostree | bool
+  when: common_ostree | bool
 
 - name: Ensure Incus guest agent is installed
   ansible.builtin.dnf:
@@ -23,12 +23,12 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
-  when: not (_ostree | bool)
+  register: common_install_incus_guest
+  until: common_install_incus_guest is successful
+  when: not (common_ostree | bool)
 
 - name: Ensure Incus guest agent is installed
   community.general.rpm_ostree_pkg:
     state: "{{ common_guest_incus | bool | ternary('present', 'absent') }}"
     name: incus-agent
-  when: _ostree | bool
+  when: common_ostree | bool

@@ -11,7 +11,7 @@
 - name: Check if DNF configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/dnf/dnf.conf.rpmnew
-  register: _dnf_conf_rpmnew
+  register: common_dnf_conf_rpmnew
 
 - name: Ensure latest DNF configuration from RPM is used
   ansible.builtin.copy:
@@ -21,7 +21,7 @@
     owner: root
     group: root
     mode: "0644"
-  when: _dnf_conf_rpmnew.stat.exists
+  when: common_dnf_conf_rpmnew.stat.exists
 
 - name: Ensure DNF is configured
   community.general.ini_file:
@@ -89,13 +89,13 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
+  register: common_install_dnf_automatic
+  until: common_install_dnf_automatic is successful
 
 - name: Check if DNF automatic configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/dnf/automatic.conf.rpmnew
-  register: _dnf_automatic_conf_rpmnew
+  register: common_dnf_automatic_conf_rpmnew
 
 - name: Ensure latest DNF automatic configuration from RPM is used
   ansible.builtin.copy:
@@ -105,7 +105,7 @@
     owner: root
     group: root
     mode: "0644"
-  when: _dnf_automatic_conf_rpmnew.stat.exists
+  when: common_dnf_automatic_conf_rpmnew.stat.exists
 
 - name: Ensure DNF automatic is configured
   community.general.ini_file:
@@ -134,7 +134,7 @@
       value: root
     - section: commands
       option: reboot
-      value: "{{ (_dnf_automatic_restart_install | bool) | ternary('when-needed', 'never') }}"
+      value: "{{ (common_dnf_automatic_restart_install | bool) | ternary('when-needed', 'never') }}"
 
 - name: Ensure dnf-automatic timer is configured
   ansible.builtin.systemd_service:
@@ -172,8 +172,8 @@
     autoremove: true
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
+  register: common_dnf_autoremove
+  until: common_dnf_autoremove is successful
 
 - name: Ensure DNF RPM package files metadata are in sync
   ansible.builtin.command: rpm --restore libdnf5 dnf5-plugin-automatic # noqa command-instead-of-module

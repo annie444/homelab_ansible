@@ -2,23 +2,18 @@
 - name: Set the default postfix config
   ansible.builtin.set_fact:
     common_postfix_conf:
-      relayhost: "{{ _smtp_server }}"
+      relayhost: "{{ common_smtp_server }}"
       inet_interfaces: "{{ common_mail_smtp_inet_interfaces }}"
-      smtp_use_tls: "{{ (common_mail_smtp_tls in ('TLS', 'STARTTLS')) |
-        ternary('yes', 'no') }}"
-      smtp_tls_wrappermode: "{{ (common_mail_smtp_tls == 'TLS') |
-        ternary('yes', 'no') }}"
-      smtp_tls_security_level: "{{ (common_mail_smtp_user is defined) |
-        ternary('encrypt', 'may') }}"
+      smtp_use_tls: "{{ (common_mail_smtp_tls in ('TLS', 'STARTTLS')) | ternary('yes', 'no') }}"
+      smtp_tls_wrappermode: "{{ (common_mail_smtp_tls == 'TLS') | ternary('yes', 'no') }}"
+      smtp_tls_security_level: "{{ (common_mail_smtp_user is defined) | ternary('encrypt', 'may') }}"
 
 - name: Set configs for the mail user
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
-    common_postfix_conf: "{{ common_postfix_conf | ansible.builtin.combine({
-      'smtp_sasl_auth_enable': 'yes',
-      'smtp_sasl_security_options': 'noanonymous, noplaintext',
-      'smtp_sasl_tls_security_options': 'noanonymous',
-      'smtp_sasl_password_maps': 'hash:/etc/postfix/sasl_passwd',
+    common_postfix_conf:
+      "{{ common_postfix_conf | ansible.builtin.combine({'smtp_sasl_auth_enable': 'yes','smtp_sasl_security_options':
+      'noanonymous, noplaintext','smtp_sasl_tls_security_options': 'noanonymous','smtp_sasl_password_maps': 'hash:/etc/postfix/sasl_passwd'\
       }) }}"
 
 - name: Configure the postfix files
@@ -28,11 +23,9 @@
 - name: Configure the sasl password
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
-    common_postfix_files: "{{ common_postfix_files | default([]) + [{
-      'name': 'sasl_passwd'
-      'content': _smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
-      'postmap': True | bool
-      }]}}"
+    common_postfix_files:
+      "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
+      'postmap': True | bool}]}}"
 
 - name: Setup postfix
   ansible.builtin.include_role:
@@ -51,7 +44,7 @@
     path: /etc/aliases
     regexp: "^#?root:"
     line: "root:           {{ common_mail_smtp_send_to }}"
-  register: _postfix_aliases
+  register: common_postfix_aliases
   when: common_mail_smtp_send_to is defined
   notify:
     - restart postfix

@@ -70,7 +70,7 @@
 -w /sbin/modprobe -p x -k modules
 
 # Record privileged commands execution
-{% for path in ([_audit_find_privileged_paths.stdout_lines, _audit_minimal_privileged_paths] | flatten | unique | sort) %}
+{% for path in ([common_audit_find_privileged_paths.stdout_lines, common_audit_minimal_privileged_paths] | flatten | unique | sort) %}
 -a always,exit -F path={{ path }} -F auid>=1000 -F auid!=unset -F key=privileged
 -a always,exit -F path={{ path }} -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
 {% endfor %}

@@ -1,0 +1,1 @@
+roles/common/tasks/ntp.yml var-naming[no-role-prefix]

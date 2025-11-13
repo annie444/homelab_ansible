@@ -73,10 +73,10 @@ common_random_mac_wifi: random
 common_random_mac_ethernet: stable
 
 # Internal values
-_smtp_server: "[{{ common_mail_smtp_host }}]:{{ common_mail_smtp_port }}"
-_dnf_automatic_restart_install: "{{ (common_dnf_automatic_restart | bool) and not (common_dnf_automatic_on_shutdown | bool) }}"
-_ostree: "{{ ansible_pkg_mgr == 'atomic_container' }}"
-_kernel_cmdline_hardening:
+common_smtp_server: "[{{ common_mail_smtp_host }}]:{{ common_mail_smtp_port }}"
+common_dnf_automatic_restart_install: "{{ (common_dnf_automatic_restart | bool) and not (common_dnf_automatic_on_shutdown | bool) }}"
+common_ostree: "{{ ansible_pkg_mgr == 'atomic_container' }}"
+common_kernel_cmdline_hardening:
   - "debugfs=off" # Prevents sensitive data access
   - "init_on_alloc=1" # Zero memory on allocation
   - "init_on_free=1" # Zero memory on free, Use-after-free protection
@@ -90,13 +90,13 @@ _kernel_cmdline_hardening:
   - "audit=1" # Enable auditing for processes which start prior to the Audit daemon
   - "audit_backlog_limit=8192" # Extend audit backlog limit for the Audit daemon
   - "ia32_emulation={{ common_os_hardening_kernel_ia32_emulation | ternary('1', '0') }}" # Reduce attack surface by disabling x86 32-bit emulation on x86-64
-_grub_cmdline_linux_default:
+common_grub_cmdline_linux_default:
   - "{{ (common_cpu_vulnerabilities_mitigation != 'auto') | ternary(['mitigations=' + common_cpu_vulnerabilities_mitigation], []) }}"
   - "{{ (common_kernel_lockdown is defined) | ternary(['lockdown=' + common_kernel_lockdown | default('')], []) }}"
   - "{{ (not common_allow_usb) | ternary(['nousb'], []) }}"
-  - "{{ common_os_hardening | ternary(_kernel_cmdline_hardening, []) }}"
-  - "{{ common_grub_cmdline_linux_default | default('') | split() }}"
-_audit_minimal_privileged_paths: # OSPP profile requires to always records theses commands usage
+  - "{{ common_os_hardening | ternary(common_kernel_cmdline_hardening, []) }}"
+  - "{{ commoncommon_grub_cmdline_linux_default | default('') | split() }}"
+common_audit_minimal_privileged_paths: # OSPP profile requires to always records theses commands usage
   - /usr/bin/at
   - /usr/bin/chage
   - /usr/bin/chcon
@@ -120,11 +120,11 @@ _audit_minimal_privileged_paths: # OSPP profile requires to always records these
   - /usr/sbin/unix_chkpwd
   - /usr/sbin/userhelper
   - /usr/sbin/usernetctl
-_netdata_kickstart_args:
+common_netdata_kickstart_args:
   - - "--disable-telemetry"
     - "--non-interactive"
     - "--native-only"
     - "--stable-channel"
-  - "{{ common_netdata_claim_token is defined | \
-    ternary(['--claim-url', 'https://app.netdata.cloud', '--claim-token', common_netdata_claim_token | default('')], []) }}"
+  - "{{ common_netdata_claim_token is defined | ternary(['--claim-url', 'https://app.netdata.cloud', '--claim-token', common_netdata_claim_token | default('')], [])
+    }}"
   - "{{ common_netdata_claim_rooms is defined | ternary(['--claim-rooms', common_netdata_claim_rooms | default('')], []) }}"

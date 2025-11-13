@@ -6,15 +6,15 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
-  when: not (_ostree | bool)
+  register: common_install_nfs_utils
+  until: common_install_nfs_utils is successful
+  when: not (common_ostree | bool)
 
 - name: Ensure NFS client requirements are installed
   community.general.rpm_ostree_pkg:
     state: present
     name: nfs-utils
-  when: _ostree | bool
+  when: common_ostree | bool
 
 - name: Ensure NFS target mount directories are present
   ansible.builtin.file:

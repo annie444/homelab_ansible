@@ -2,7 +2,7 @@
 - name: Check if PAM SU configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/pam.d/su.rpmnew
-  register: pam_su_rpmnew
+  register: common_pam_su_rpmnew
 
 - name: Ensure latest SU default configuration from RPM is used
   ansible.builtin.copy:
@@ -12,12 +12,12 @@
     owner: root
     group: root
     mode: "0644"
-  when: pam_su_rpmnew.stat.exists
+  when: common_pam_su_rpmnew.stat.exists
 
 - name: Check if PAM SU-l configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/pam.d/su-l.rpmnew
-  register: pam_su_l_rpmnew
+  register: common_pam_su_l_rpmnew
 
 - name: Ensure latest SU-l default configuration from RPM is used
   ansible.builtin.copy:
@@ -27,12 +27,12 @@
     owner: root
     group: root
     mode: "0644"
-  when: pam_su_l_rpmnew.stat.exists
+  when: common_pam_su_l_rpmnew.stat.exists
 
 - name: Check if PAM pwquality configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/security/pwquality.conf.rpmnew
-  register: pam_pwquality_rpmnew
+  register: common_pam_pwquality_rpmnew
 
 - name: Ensure latest pwquality default configuration from RPM is used
   ansible.builtin.copy:
@@ -42,12 +42,12 @@
     owner: root
     group: root
     mode: "0644"
-  when: pam_pwquality_rpmnew.stat.exists
+  when: common_pam_pwquality_rpmnew.stat.exists
 
 - name: Ensure SU access is restricted to wheel group
   ansible.builtin.lineinfile:
     path: "{{ item }}"
-    regexp: '^#?auth\s+required\s+pam_wheel.so\s+use_uid\s*$'
+    regexp: "^#?auth\\s+required\\s+pam_wheel.so\\s+use_uid\\s*$"
     line: "{{ (common_os_hardening | bool) | ternary('auth ', '#auth') }}           required        pam_wheel.so use_uid"
   loop:
     - /etc/pam.d/su

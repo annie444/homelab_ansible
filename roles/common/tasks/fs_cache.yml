@@ -6,15 +6,15 @@
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: _
-  until: _ is successful
-  when: not (_ostree | bool)
+  register: common_install_fs_cache
+  until: common_install_fs_cache is successful
+  when: not (common_ostree | bool)
 
 - name: Ensure cachefilesd is installed
   community.general.rpm_ostree_pkg:
     state: present
     name: cachefilesd
-  when: _ostree | bool
+  when: common_ostree | bool
 
 - name: Ensure cachefilesd service is configured
   ansible.builtin.systemd_service:
