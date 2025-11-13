@@ -1,5 +1,5 @@
 ---
-- name: Ensure DNF CA certificates are present
+- name: dnf | Ensure DNF CA certificates are present
   ansible.builtin.copy:
     src: "{{ common_dnf_sslcacert }}"
     dest: /etc/pki/tls/certs/dnf-ca-bundle.crt
@@ -8,12 +8,12 @@
     mode: "0644"
   when: common_dnf_sslcacert is defined
 
-- name: Check if DNF configuration was updated by RPM
+- name: dnf | Check if DNF configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/dnf/dnf.conf.rpmnew
   register: common_dnf_conf_rpmnew
 
-- name: Ensure latest DNF configuration from RPM is used
+- name: dnf | Ensure latest DNF configuration from RPM is used
   ansible.builtin.copy:
     remote_src: true
     src: /etc/dnf/dnf.conf.rpmnew
@@ -23,7 +23,7 @@
     mode: "0644"
   when: common_dnf_conf_rpmnew.stat.exists
 
-- name: Ensure DNF is configured
+- name: dnf | Ensure DNF is configured
   community.general.ini_file:
     path: /etc/dnf/dnf.conf
     section: main
@@ -68,19 +68,19 @@
       when: "{{ common_dnf_nodocs | bool }}"
   when: item.when | default(true)
 
-- name: Ensure Netdata is installed
+- name: dnf | Ensure Netdata is installed
   block:
-    - name: Ensure python3-libdnf5 is present
+    - name: dnf | Ensure python3-libdnf5 is present
       ansible.builtin.dnf:
         state: present
         name: python3-libdnf5
         install_weak_deps: false
   rescue:
-    - name: Ensure python3-libdnf5 is present using CLI
+    - name: dnf | Ensure python3-libdnf5 is present using CLI
       ansible.builtin.command: dnf install python3-libdnf5 -y
       changed_when: false
 
-- name: Ensure DNF automatic and DNF system upgrade are installed
+- name: dnf | Ensure DNF automatic and DNF system upgrade are installed
   ansible.builtin.dnf:
     state: present
     name:
@@ -92,12 +92,12 @@
   register: common_install_dnf_automatic
   until: common_install_dnf_automatic is successful
 
-- name: Check if DNF automatic configuration was updated by RPM
+- name: dnf | Check if DNF automatic configuration was updated by RPM
   ansible.builtin.stat:
     path: /etc/dnf/automatic.conf.rpmnew
   register: common_dnf_automatic_conf_rpmnew
 
-- name: Ensure latest DNF automatic configuration from RPM is used
+- name: dnf | Ensure latest DNF automatic configuration from RPM is used
   ansible.builtin.copy:
     remote_src: true
     src: /etc/dnf/automatic.conf.rpmnew
@@ -107,7 +107,7 @@
     mode: "0644"
   when: common_dnf_automatic_conf_rpmnew.stat.exists
 
-- name: Ensure DNF automatic is configured
+- name: dnf | Ensure DNF automatic is configured
   community.general.ini_file:
     path: /etc/dnf/automatic.conf
     section: "{{ item.section }}"
@@ -136,7 +136,7 @@
       option: reboot
       value: "{{ (common_dnf_automatic_restart_install | bool) | ternary('when-needed', 'never') }}"
 
-- name: Ensure dnf-automatic timer is configured
+- name: dnf | Ensure dnf-automatic timer is configured
   ansible.builtin.systemd_service:
     name: dnf-automatic.timer
     enabled: true
@@ -144,7 +144,7 @@
     daemon_reload: true
   when: not (common_dnf_automatic_on_shutdown | bool)
 
-- name: Ensure dnf-automatic-on-shutdown is installed
+- name: dnf | Ensure dnf-automatic-on-shutdown is installed
   ansible.builtin.copy:
     src: dnf-automatic-on-shutdown.service
     dest: /etc/systemd/system/dnf-automatic-on-shutdown.service
@@ -153,21 +153,21 @@
     mode: "0644"
   when: common_dnf_automatic_on_shutdown | bool
 
-- name: Ensure dnf-automatic-on-shutdown service is configured
+- name: dnf | Ensure dnf-automatic-on-shutdown service is configured
   ansible.builtin.systemd_service:
-    name: dnf-automatic-on-shutdown.service
+    name: dnf | dnf-automatic-on-shutdown.service
     state: started
     enabled: true
     daemon_reload: true
   when: common_dnf_automatic_on_shutdown | bool
 
-- name: Ensure dnf-automatic-on-shutdown service is not present
+- name: dnf | Ensure dnf-automatic-on-shutdown service is not present
   ansible.builtin.file:
     path: /etc/systemd/system/dnf-automatic-on-shutdown.service
     state: absent
   when: not (common_dnf_automatic_on_shutdown | bool)
 
-- name: Ensure no unrequired previous dependencies are installed
+- name: dnf | Ensure no unrequired previous dependencies are installed
   ansible.builtin.dnf:
     autoremove: true
   retries: 10
@@ -175,11 +175,11 @@
   register: common_dnf_autoremove
   until: common_dnf_autoremove is successful
 
-- name: Ensure DNF RPM package files metadata are in sync
+- name: dnf | Ensure DNF RPM package files metadata are in sync
   ansible.builtin.command: rpm --restore libdnf5 dnf5-plugin-automatic # noqa command-instead-of-module
   changed_when: false
 
-- name: Ensure DNF "rpmnew" files are absent
+- name: dnf | Ensure DNF "rpmnew" files are absent
   ansible.builtin.file:
     path: "{{ item }}.rpmnew"
     state: absent
@@ -187,7 +187,7 @@
     - /etc/dnf/automatic.conf
     - /etc/dnf/dnf.conf
 
-- name: Ensure DNF "rpmsave" files are absent
+- name: dnf | Ensure DNF "rpmsave" files are absent
   ansible.builtin.file:
     path: "{{ item }}.rpmsave"
     state: absent
@@ -195,7 +195,7 @@
     - /etc/dnf/automatic.conf
     - /etc/dnf/dnf.conf
 
-- name: Ensure previous "dnf-automatic-restart" extra configuration is absent
+- name: dnf | Ensure previous "dnf-automatic-restart" extra configuration is absent
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent

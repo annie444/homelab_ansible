@@ -55,6 +55,45 @@ for more details.
 See the
 [changelog](https://github.com/ansible-collections/annie444.homelab/tree/main/CHANGELOG.rst).
 
+## Testing changes locally
+
+The collection now ships with two Incus/LXD Molecule scenarios
+(`extensions/molecule/incus-fedora42` and `extensions/molecule/incus-fedora43`)
+that exercise `annie444.homelab.common` end-to-end on Fedora 42/43.
+
+To run them locally:
+
+1. Install [Incus](https://linuxcontainers.org/incus/) and create a private bridge
+   (for example `incusbr0`) plus a profile that enables `security.nesting` and
+   `security.privileged`.
+2. Ensure the Incus client is authenticated for your user and that the bridge is
+   reachable from the host that runs Molecule.
+3. Install the testing dependencies:
+   ```bash
+   uv sync --group test
+   ```
+4. Execute Molecule via tox (this automatically installs `molecule-plugins[lxd]`):
+   ```bash
+   tox -e fedora42-common
+   tox -e fedora43-common
+   ```
+
+Both scenarios drive `annie444.homelab.common` end-to-end with systemd enabled
+inside the container so that service-level interactions can be validated without
+resorting to privileged Podman instances.
+
+The repository now includes `.github/workflows/molecule-incus.yml`, which:
+
+- Builds a test matrix that only targets roles touched in a PR (using
+  `scripts/determine_changed_roles.sh`).
+- Runs the tox/Molecule matrix on a self-hosted `self-hosted, linux, incus-runner`
+  GitHub Actions runner.
+- Posts live status updates (including a badge) back to the PR so reviewers can
+  see which Fedora versions succeeded.
+
+If you self-host the runner, make sure it has Incus installed and can reach the
+images listed above.
+
 ## Roadmap
 
 <!-- Optional. Include the roadmap for this collection, and the proposed release/versioning strategy so users can anticipate the upgrade/update cycle. -->

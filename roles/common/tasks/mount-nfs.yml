@@ -1,35 +1,35 @@
 ---
-- name: Ensure SMB client requirements are installed
+- name: mount-nfs | Ensure NFS client requirements are installed
   ansible.builtin.dnf:
     state: present
-    name: cifs-utils
+    name: nfs-utils
     install_weak_deps: false
   retries: 10
   delay: 1
-  register: common_install_cifs_utils
-  until: common_install_cifs_utils is successful
+  register: common_install_nfs_utils
+  until: common_install_nfs_utils is successful
   when: not (common_ostree | bool)
 
-- name: Ensure SMB client requirements are installed
+- name: mount-nfs | Ensure NFS client requirements are installed
   community.general.rpm_ostree_pkg:
     state: present
-    name: cifs-utils
+    name: nfs-utils
   when: common_ostree | bool
 
-- name: Ensure SMB target mount directories are present
+- name: mount-nfs | Ensure NFS target mount directories are present
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
     owner: "{{ item.owner | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     mode: "{{ item.mode | default(omit) }}"
-  loop: "{{ common_smb_mount }}"
+  loop: "{{ common_nfs_mount }}"
 
-- name: Mount SMB shares
+- name: mount-nfs | Mount NFS shares
   ansible.posix.mount:
     path: "{{ item.path }}"
     src: "{{ item.src }}"
     opts: "{{ item.opts | default(omit) }}"
-    fstype: cifs
+    fstype: nfs
     state: "{{ item.state | default('mounted') }}"
-  loop: "{{ common_smb_mount }}"
+  loop: "{{ common_nfs_mount }}"

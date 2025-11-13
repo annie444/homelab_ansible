@@ -1,26 +1,60 @@
 ---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: ${MOLECULE_SCENARIO_DIRECTORY}/../default/requirements.yml
+
+driver:
+  name: lxd
+
+platforms:
+  - name: common-fedora42
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: simplestreams
+      alias: fedora/42
+    profiles:
+      - default
+    config:
+      security.nesting: "true"
+      security.privileged: "true"
+      limits.memory: 2GB
+    description: Fedora 42 system container with systemd enabled
+
+  - name: common-fedora43
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: simplestreams
+      alias: fedora/43
+    profiles:
+      - default
+    config:
+      security.nesting: "true"
+      security.privileged: "true"
+      limits.memory: 2GB
+    description: Fedora 42 system container with systemd enabled
+
 ansible:
   cfg:
     defaults:
+      callbacks_enabled: profile_tasks, timer
       deprecation_warnings: false
-  playbooks:
-    create: ../default/create.yml
-    destroy: ../default/destroy.yml
-    converge: ../default/converge.yml
-    verify: ../default/verify.yml
-    cleanup: ../default/cleanup.yml
   env:
-    ANSIBLE_FORCE_COLOR: true
+    ANSIBLE_FORCE_COLOR: "true"
   executor:
     backend: ansible-playbook
     args:
       ansible_playbook:
         - --inventory=inventory/
-
-dependency:
-  name: galaxy
-  options:
-    requirements-file: ${MOLECULE_SCENARIO_DIRECTORY}/../default/requirements.yml
+  playbooks:
+    prepare: ../default/prepare.yml
+    converge: ../default/converge.yml
+    verify: ../default/verify.yml
+    cleanup: ../default/cleanup.yml
 
 verifier:
   name: ansible
@@ -30,6 +64,7 @@ scenario:
     - dependency
     - destroy
     - create
+    - prepare
     - converge
     - idempotence
     - verify

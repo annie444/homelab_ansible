@@ -1,5 +1,5 @@
 ---
-- name: Ensure root access via console device is disabled
+- name: hardening-os | Ensure root access via console device is disabled
   ansible.builtin.file:
     path: /etc/securetty
     state: touch
@@ -8,7 +8,7 @@
     access_time: preserve
   when: common_os_hardening | bool
 
-- name: Create the hardened sysctl file
+- name: hardening-os | Create the hardened sysctl file
   ansible.builtin.file:
     path: /etc/sysctl.d/99-hardening.conf
     state: touch
@@ -19,7 +19,7 @@
     access_time: preserve
   when: common_os_hardening | bool
 
-- name: Ensure Kernel sysctl hardening is set
+- name: hardening-os | Ensure Kernel sysctl hardening is set
   ansible.posix.sysctl:
     sysctl_file: /etc/sysctl.d/99-hardening.conf
     ignoreerrors: false
@@ -33,13 +33,13 @@
   when: common_os_hardening | bool
   notify: kernel_modules_disabled
 
-- name: Remove Kernel hardening options
+- name: hardening-os | Remove Kernel hardening options
   ansible.builtin.file:
     path: /etc/sysctl.d/99-hardening.conf
     state: absent
   when: not (common_os_hardening | bool)
 
-- name: Create the hardened user namespace sysctl file
+- name: hardening-os | Create the hardened user namespace sysctl file
   ansible.builtin.file:
     path: /etc/sysctl.d/99-hardening-user-namespaces-disabled.conf
     state: touch
@@ -52,7 +52,7 @@
     - common_os_hardening | bool
     - common_os_hardening_disable_user_namespaces | bool
 
-- name: Ensure Kernel user namespaces are disabled
+- name: hardening-os | Ensure Kernel user namespaces are disabled
   ansible.posix.sysctl:
     sysctl_file: /etc/sysctl.d/99-hardening-user-namespaces-disabled.conf
     ignoreerrors: false
@@ -65,20 +65,20 @@
     - common_os_hardening | bool
     - common_os_hardening_disable_user_namespaces | bool
 
-- name: Remove Kernel user namespace limits
+- name: hardening-os | Remove Kernel user namespace limits
   ansible.builtin.file:
     path: /etc/sysctl.d/99-hardening-user-namespaces-disabled.conf
     state: absent
   when: not (common_os_hardening | bool) or not (common_os_hardening_disable_user_namespaces | bool)
 
-- name: Ensure Kernel module loading is temporary allowed during Ansible operation
+- name: hardening-os | Ensure Kernel module loading is temporary allowed during Ansible operation
   ansible.builtin.file:
     path: /etc/sysctl.d/99-hardening-kernel-modules-disabled.conf
     state: absent
   when: common_os_hardening | bool
   notify: kernel_modules_disabled
 
-- name: Ensure IPv6 privacy extensions are enabled in systemd
+- name: hardening-os | Ensure IPv6 privacy extensions are enabled in systemd
   ansible.builtin.copy:
     src: networkd-ipv6-privacy-extensions.conf
     dest: /etc/systemd/network/ipv6-privacy-extensions.conf
@@ -88,7 +88,7 @@
   register: common_ipv6_privacy_extensions
   when: common_os_hardening | bool
 
-- name: Ensure random MAC address are enabled in NetworkManager
+- name: hardening-os | Ensure random MAC address are enabled in NetworkManager
   ansible.builtin.template:
     src: random-mac.conf.j2
     dest: /etc/NetworkManager/conf.d/00-random-mac.conf
@@ -98,7 +98,7 @@
   register: common_random_mac_address
   when: common_random_mac | bool
 
-- name: Ensure coredump configuration directory is present
+- name: hardening-os | Ensure coredump configuration directory is present
   ansible.builtin.file:
     path: /etc/systemd/coredump.conf.d
     state: directory
@@ -107,14 +107,14 @@
     mode: "0755"
   when: common_os_hardening | bool
 
-- name: Ensure coredump storage is disabled in systemd
+- name: hardening-os | Ensure coredump storage is disabled in systemd
   ansible.builtin.copy:
     src: coredump-disabled.conf
     dest: /etc/systemd/coredump.conf.d/disabled.conf
     mode: "0600"
   when: common_os_hardening | bool
 
-- name: Ensure Systemd coredump socket and service are disabled
+- name: hardening-os | Ensure Systemd coredump socket and service are disabled
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: false
@@ -125,7 +125,7 @@
     - systemd-coredump
     - systemd-coredump.socket
 
-- name: Ensure Systemd debug-shell service is disabled
+- name: hardening-os | Ensure Systemd debug-shell service is disabled
   ansible.builtin.systemd:
     name: debug-shell
     enabled: false
@@ -133,7 +133,7 @@
     masked: true
   ignore_errors: true # noqa ignore-errors
 
-- name: Ensure security limits configuration directory is present
+- name: hardening-os | Ensure security limits configuration directory is present
   ansible.builtin.file:
     path: /etc/security/limits.d
     state: directory
@@ -142,7 +142,7 @@
     mode: "0755"
   when: common_os_hardening | bool
 
-- name: Ensure coredump is disabled in security limits configuration
+- name: hardening-os | Ensure coredump is disabled in security limits configuration
   community.general.pam_limits:
     dest: /etc/security/limits.d/50-hard-core.conf
     domain: "*"
@@ -151,7 +151,7 @@
     value: "0"
   when: common_os_hardening | bool
 
-- name: Ensure rng-tools is installed
+- name: hardening-os | Ensure rng-tools is installed
   ansible.builtin.dnf:
     state: present
     name: rng-tools
@@ -164,7 +164,7 @@
     - common_os_hardening | bool
     - not (common_ostree | bool)
 
-- name: Ensure rng-tools is installed
+- name: hardening-os | Ensure rng-tools is installed
   community.general.rpm_ostree_pkg:
     state: present
     name: rng-tools
@@ -172,7 +172,7 @@
     - common_os_hardening | bool
     - common_ostree | bool
 
-- name: Ensure rngd is enabled
+- name: hardening-os | Ensure rngd is enabled
   ansible.builtin.systemd_service:
     name: rngd
     enabled: "{{ common_os_hardening | bool }}"
@@ -180,14 +180,14 @@
   tags:
     - molecule-notest
 
-- name: Ensure vulnerable or rarely used Kernel modules loading is disallowed
+- name: hardening-os | Ensure vulnerable or rarely used Kernel modules loading is disallowed
   ansible.builtin.template:
     src: modprobe-hardening.conf.j2
     dest: /etc/modprobe.d/hardening.conf
     mode: "0600"
   when: common_os_hardening | bool
 
-- name: Ensure interactive session timeout is set
+- name: hardening-os | Ensure interactive session timeout is set
   ansible.builtin.lineinfile:
     path: /etc/profile.d/tmout.sh
     create: true
@@ -198,7 +198,7 @@
     mode: "0644"
   when: common_os_hardening | bool
 
-- name: Ensure hardening is disabled
+- name: hardening-os | Ensure hardening is disabled
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -213,14 +213,14 @@
     - /etc/modprobe.d/hardening.conf
     - /etc/profile.d/tmout.sh
 
-- name: Ensure random MAC address is disabled
+- name: hardening-os | Ensure random MAC address is disabled
   ansible.builtin.file:
     path: /etc/NetworkManager/conf.d/00-random-mac.conf
     state: absent
   when: not (common_random_mac | bool)
   register: common_disablecommon_random_mac_address
 
-- name: Ensure networkd is restarted
+- name: hardening-os | Ensure networkd is restarted
   ansible.builtin.systemd_service:
     name: systemd-networkd
     state: restarted
@@ -229,14 +229,14 @@
   tags:
     - molecule-notest
 
-- name: Ensure network manager is restarted
+- name: hardening-os | Ensure network manager is restarted
   ansible.builtin.systemd_service:
     name: NetworkManager
     state: restarted
   changed_when: false
   when: common_random_mac_address.changed or common_disablecommon_random_mac_address.changed # noqa no-handler
 
-- name: Ensure Kernel sysctl is reloaded
+- name: hardening-os | Ensure Kernel sysctl is reloaded
   ansible.builtin.command: /usr/sbin/sysctl --system
   changed_when: false
   when: common_sysctl.changed or common_disable_hardening.changed # noqa no-handler

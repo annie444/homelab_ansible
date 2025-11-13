@@ -1,5 +1,5 @@
 ---
-- name: Set the default postfix config
+- name: mail | Set the default postfix config
   ansible.builtin.set_fact:
     common_postfix_conf:
       relayhost: "{{ common_smtp_server }}"
@@ -8,26 +8,23 @@
       smtp_tls_wrappermode: "{{ (common_mail_smtp_tls == 'TLS') | ternary('yes', 'no') }}"
       smtp_tls_security_level: "{{ (common_mail_smtp_user is defined) | ternary('encrypt', 'may') }}"
 
-- name: Set configs for the mail user
+- name: mail | Set configs for the mail user
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
-    common_postfix_conf:
-      "{{ common_postfix_conf | ansible.builtin.combine({'smtp_sasl_auth_enable': 'yes','smtp_sasl_security_options':
-      'noanonymous, noplaintext','smtp_sasl_tls_security_options': 'noanonymous','smtp_sasl_password_maps': 'hash:/etc/postfix/sasl_passwd'\
-      }) }}"
+    common_postfix_conf: "{{ common_postfix_conf | ansible.builtin.combine({'smtp_sasl_auth_enable': 'yes', 'smtp_sasl_security_options': 'noanonymous, noplaintext',
+      'smtp_sasl_tls_security_options': 'noanonymous', 'smtp_sasl_password_maps': 'hash:/etc/postfix/sasl_passwd'}) }}"
 
-- name: Configure the postfix files
+- name: mail | Configure the postfix files
   ansible.builtin.set_fact:
     common_postfix_files: []
 
-- name: Configure the sasl password
+- name: mail | Configure the sasl password
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
-    common_postfix_files:
-      "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
+    common_postfix_files: "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
       'postmap': True | bool}]}}"
 
-- name: Setup postfix
+- name: mail | Setup postfix
   ansible.builtin.include_role:
     name: fedora.linux_system_roles.postfix
   vars:
@@ -39,7 +36,7 @@
     postfix_manage_firewall: true
     postfix_manage_selinux: true
 
-- name: Ensure root mails redirection is configured
+- name: mail | Ensure root mails redirection is configured
   ansible.builtin.lineinfile:
     path: /etc/aliases
     regexp: "^#?root:"
@@ -50,7 +47,7 @@
     - restart postfix
     - postfix reload aliases
 
-- name: Ensure Postfix service parent directory is present
+- name: mail | Ensure Postfix service parent directory is present
   ansible.builtin.file:
     path: /etc/systemd/system/postfix.service.d
     owner: root
@@ -58,7 +55,7 @@
     mode: "0755"
     state: directory
 
-- name: Ensure Postfix systemd service configuration is present
+- name: mail | Ensure Postfix systemd service configuration is present
   ansible.builtin.copy:
     src: postfix_service.conf
     dest: /etc/systemd/system/postfix.service.d/postfix.conf
@@ -68,10 +65,10 @@
   notify:
     - reload postfix
 
-- name: Flush handlers
+- name: mail | Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Ensure Postfix "rpmnew" files are absent
+- name: mail | Ensure Postfix "rpmnew" files are absent
   ansible.builtin.file:
     path: "{{ item }}.rpmnew"
     state: absent
@@ -79,7 +76,7 @@
     - /etc/postfix/main.cf
     - /etc/aliases
 
-- name: Ensure Postfix "rpmsave" files are absent
+- name: mail | Ensure Postfix "rpmsave" files are absent
   ansible.builtin.file:
     path: "{{ item }}.rpmsave"
     state: absent

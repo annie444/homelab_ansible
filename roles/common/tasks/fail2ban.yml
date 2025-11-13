@@ -1,5 +1,5 @@
 ---
-- name: Ensure Fail2Ban is installed
+- name: fail2ban | Ensure Fail2Ban is installed
   ansible.builtin.dnf:
     state: present
     name:
@@ -13,7 +13,7 @@
   until: common_install_fail2ban is successful
   when: not (common_ostree | bool)
 
-- name: Ensure Fail2Ban is installed
+- name: fail2ban | Ensure Fail2Ban is installed
   community.general.rpm_ostree_pkg:
     state: present
     name:
@@ -22,7 +22,7 @@
       - whois
   when: common_ostree | bool
 
-- name: Ensure Fail2ban is configured
+- name: fail2ban | Ensure Fail2ban is configured
   ansible.builtin.copy:
     src: fail2ban.local
     dest: /etc/fail2ban/fail2ban.d/fail2ban.local
@@ -30,7 +30,7 @@
     group: root
     mode: "0644"
 
-- name: Ensure Fail2ban jails are configured
+- name: fail2ban | Ensure Fail2ban jails are configured
   ansible.builtin.template:
     src: jail.local.j2
     dest: /etc/fail2ban/jail.d/jail.local
@@ -38,7 +38,7 @@
     group: root
     mode: "0644"
 
-- name: Ensure Fail2ban start/stop alerts are disabled
+- name: fail2ban | Ensure Fail2ban start/stop alerts are disabled
   ansible.builtin.copy:
     src: sendmail-common.local
     dest: /etc/fail2ban/action.d/sendmail-common.local
@@ -46,7 +46,7 @@
     group: root
     mode: "0644"
 
-- name: Ensure Fail2ban service parent directory is present
+- name: fail2ban | Ensure Fail2ban service parent directory is present
   ansible.builtin.file:
     path: /etc/systemd/system/fail2ban.service.d
     state: directory
@@ -54,7 +54,7 @@
     group: root
     mode: "0644"
 
-- name: Ensure Fail2ban systemd service configuration is present
+- name: fail2ban | Ensure Fail2ban systemd service configuration is present
   ansible.builtin.copy:
     src: fail2ban_service.conf
     dest: /etc/systemd/system/fail2ban.service.d/fail2ban.conf
@@ -63,7 +63,7 @@
     mode: "0644"
   register: common_fail2ban_systemd
 
-- name: Ensure Fail2ban service is restarted and enabled at boot
+- name: fail2ban | Ensure Fail2ban service is restarted and enabled at boot
   ansible.builtin.systemd_service:
     name: fail2ban
     state: restarted

@@ -1,5 +1,5 @@
 ---
-- name: Ensure cachefilesd is installed
+- name: fs-cache | Ensure cachefilesd is installed
   ansible.builtin.dnf:
     state: present
     name: cachefilesd
@@ -10,13 +10,13 @@
   until: common_install_fs_cache is successful
   when: not (common_ostree | bool)
 
-- name: Ensure cachefilesd is installed
+- name: fs-cache | Ensure cachefilesd is installed
   community.general.rpm_ostree_pkg:
     state: present
     name: cachefilesd
   when: common_ostree | bool
 
-- name: Ensure cachefilesd service is configured
+- name: fs-cache | Ensure cachefilesd service is configured
   ansible.builtin.systemd_service:
     name: cachefilesd.service
     state: started

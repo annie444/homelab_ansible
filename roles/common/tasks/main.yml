@@ -39,7 +39,7 @@
 
 - name: CA certificates configuration
   ansible.builtin.include_tasks:
-    file: ca_certificates.yml
+    file: ca-certificates.yml
   when: common_ca_certificates is defined
 
 - name: DNS configuration
@@ -57,7 +57,7 @@
 
 - name: DNF OS upgrade
   ansible.builtin.include_tasks:
-    file: dnf_upgrade.yml
+    file: dnf-upgrade.yml
   when: not (common_ostree | bool)
 
 - name: Firewall configuration
@@ -70,16 +70,16 @@
 
 - name: OS Hardening
   ansible.builtin.include_tasks:
-    file: hardening_os.yml
+    file: hardening-os.yml
   when: common_os_hardening | bool
 
 - name: SSH Hardening
   ansible.builtin.include_tasks:
-    file: hardening_ssh.yml
+    file: hardening-ssh.yml
 
 - name: Admin credentials configuration
   ansible.builtin.include_tasks:
-    file: admin_credentials.yml
+    file: admin-credentials.yml
 
 - name: NTP configuration
   when: common_ntp_servers is defined or common_ptp_domains is defined
@@ -92,17 +92,17 @@
 
 - name: FS-Cache configuration
   ansible.builtin.include_tasks:
-    file: fs_cache.yml
+    file: fs-cache.yml
   when: common_fs_cache | bool
 
 - name: NFS mounts configuration
   ansible.builtin.include_tasks:
-    file: mount_nfs.yml
+    file: mount-nfs.yml
   when: common_nfs_mount is defined
 
 - name: SMB mounts configuration
   ansible.builtin.include_tasks:
-    file: mount_smb.yml
+    file: mount-smb.yml
   when: common_smb_mount is defined
 
 - name: Guest VM configuration

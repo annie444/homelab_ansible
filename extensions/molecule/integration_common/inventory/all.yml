@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    molecule:
+      hosts:
+        common-fedora43:
+          molecule_expected_release: "43"
+        common-fedora42:
+          molecule_expected_release: "42"

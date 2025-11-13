@@ -1,5 +1,5 @@
 ---
-- name: Ensure resolved configuration directory is present
+- name: dns | Ensure resolved configuration directory is present
   ansible.builtin.file:
     path: /etc/systemd/resolved.conf.d
     state: directory
@@ -7,7 +7,7 @@
     group: root
     mode: "0755"
 
-- name: Ensure DNS resolver is configured
+- name: dns | Ensure DNS resolver is configured
   community.general.ini_file:
     path: /etc/systemd/resolved.conf.d/dns.conf
     section: Resolve
@@ -32,13 +32,13 @@
   when:
     - item.when | default(true)
 
-- name: Ensure resolved is restarted
+- name: dns | Ensure resolved is restarted
   ansible.builtin.systemd_service:
     name: systemd-resolved
     state: restarted
   changed_when: false
 
-- name: Ensure host domain is set in /etc/hosts with localhost IPv6
+- name: dns | Ensure host domain is set in /etc/hosts with localhost IPv6
   ansible.builtin.lineinfile:
     path: /etc/hosts
     regexp: "^::1\\s+"

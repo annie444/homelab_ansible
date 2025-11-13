@@ -1,5 +1,5 @@
 ---
-- name: Ensure sshd configuration is hardened
+- name: hardening-ssh | Ensure sshd configuration is hardened
   ansible.builtin.template:
     src: ssh-hardening.conf.j2
     dest: /etc/ssh/sshd_config.d/00-ssh-hardening.conf
@@ -8,7 +8,7 @@
     mode: "0640"
   when: common_ssh_hardening | bool
 
-- name: Ensure sshd configuration hardening is disabled
+- name: hardening-ssh | Ensure sshd configuration hardening is disabled
   ansible.builtin.file:
     path: /etc/ssh/sshd_config.d/00-ssh-hardening.conf
     state: absent
