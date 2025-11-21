@@ -4,6 +4,29 @@ all:
     molecule:
       hosts:
         common-fedora43:
-          molecule_expected_release: "43"
+          ansible_connection: containers.podman.podman
+          container_image: registry.fedoraproject.org/fedora-bootc:43
+          container_entrypoint: /sbin/init
+          container_command: >-
+            --dump-core=true --crash-shell=false --show-status=true
+            --log-target=console --log-level=info --log-color=true
+            --log-location=true --log-time=true --no-pager
+          container_privileged: true
+          container_volumes:
+            - /sys/fs/cgroup:/sys/fs/cgroup:ro
+          container_capabilities:
+            - SYS_ADMIN
+
         common-fedora42:
-          molecule_expected_release: "42"
+          ansible_connection: containers.podman.podman
+          container_image: registry.fedoraproject.org/fedora-bootc:42
+          container_entrypoint: /sbin/init
+          container_command: >-
+            --dump-core=true --crash-shell=false --show-status=true
+            --log-target=console --log-level=info --log-color=true
+            --log-location=true --log-time=true --no-pager
+          container_privileged: true
+          container_volumes:
+            - /sys/fs/cgroup:/sys/fs/cgroup:ro
+          container_capabilities:
+            - SYS_ADMIN

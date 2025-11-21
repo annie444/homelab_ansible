@@ -8,10 +8,16 @@
           - zone: admin
             state: present
 
+    - name: firewall | Define the firewall sources
+      ansible.builtin.set_fact:
+        common_firewall_sources: >-
+          {%- if common_trusted_firewalld_source is iterable and common_trusted_firewalld_source is not string -%} {{ common_trusted_firewalld_source }}{%- elif common_trusted_firewalld_source
+          is string -%} {{ [common_trusted_firewalld_source] }}{%- else -%} {{ [] }}{%- endif -%}
+
     - name: firewall | Set the firewall trusted sources
       ansible.builtin.set_fact:
         common_firewall: "{{ common_firewall | default([]) + [{'zone': 'admin', 'state': 'enabled', 'source': item}] }}"
-      loop: "{{ common_trusted_firewalld_source }}"
+      loop: "{{ common_firewall_sources }}"
 
     - name: firewall | Set the firewall trusted services
       ansible.builtin.set_fact:

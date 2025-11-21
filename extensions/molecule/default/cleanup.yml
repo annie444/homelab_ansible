@@ -1,9 +1,40 @@
 ---
-- name: Cleanup host after Molecule
-  hosts: all
+- name: Cleanup container instances
+  hosts: molecule
   gather_facts: false
-  become: true
   tasks:
-    - name: Clean DNF caches
-      ansible.builtin.command: dnf -y clean all
-      changed_when: false
+    - name: Remove the temp dir
+      ansible.builtin.file:
+        path: /tmp/ansible
+        state: absent
+
+    - name: Load the default vars
+      ansible.builtin.include_vars:
+        file: ../../default/vars/vars.yml
+      delegate_to: localhost
+      run_once: true
+
+    - name: Build network list for molecule hosts
+      ansible.builtin.set_fact:
+        molecule_networks: "{{ (molecule_networks | default([])) + [network_name] | unique }}"
+      vars:
+        network_prefix: "{{ hostvars[item].container_network | default(item) }}"
+        network_name: "{{ network_prefix }}-{{ molecule_scenario_name }}"
+      loop: "{{ groups['molecule'] }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Check if container is running
+      containers.podman.podman_container_info:
+        name: "{{ inventory_hostname }}"
+      register: container_info
+      delegate_to: localhost
+
+    - name: Remove podman networks
+      containers.podman.podman_network:
+        name: "{{ item }}"
+        state: absent
+        force: true
+      loop: "{{ molecule_networks | default([]) }}"
+      delegate_to: localhost
+      run_once: true

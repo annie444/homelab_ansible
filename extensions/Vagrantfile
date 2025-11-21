@@ -1,0 +1,10 @@
+# This Vagrantfile sets up a Fedora 43 virtual machine using the specified box and version.
+Vagrant.configure('2') do |config|
+  config.vm.box = 'annie444/fedora-43'
+  config.vm.box_version = '0.1.0'
+  config.vm.provider :vmware_desktop do |vmware|
+    if ENV['VMWARE_UTILITY_CERT_PATH'] && !ENV['VMWARE_UTILITY_CERT_PATH'].empty?
+      vmware.utility_certificate_path = ENV['VMWARE_UTILITY_CERT_PATH']
+    end
+  end
+end
