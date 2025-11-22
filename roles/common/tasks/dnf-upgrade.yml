@@ -38,6 +38,8 @@
     reboot_command: "dnf system-upgrade reboot -y"
     reboot_timeout: 7200
   when: common_os_upgrade_available | bool
+  tags:
+    - molecule-notest
 
 - name: dnf-upgrade | Re-gather facts after upgrade
   ansible.builtin.setup:
