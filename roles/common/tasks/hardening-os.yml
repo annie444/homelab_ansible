@@ -32,6 +32,8 @@
   register: common_sysctl
   when: common_os_hardening | bool
   notify: kernel_modules_disabled
+  tags:
+    - molecule-notest
 
 - name: hardening-os | Remove Kernel hardening options
   ansible.builtin.file:

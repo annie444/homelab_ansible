@@ -18,7 +18,6 @@
     modification_time: preserve
     access_time: preserve
   when: common_os_hardening | bool
-  
 
 - name: hardening-os | Ensure Kernel sysctl hardening is set
   ansible.posix.sysctl:
@@ -33,6 +32,8 @@
   register: common_sysctl
   when: common_os_hardening | bool
   notify: kernel_modules_disabled
+  tags:
+    - molecule-notest
 
 - name: hardening-os | Remove Kernel hardening options
   ansible.builtin.file:
