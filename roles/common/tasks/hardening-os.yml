@@ -66,6 +66,8 @@
   when:
     - common_os_hardening | bool
     - common_os_hardening_disable_user_namespaces | bool
+  tags:
+    - molecule-notest
 
 - name: hardening-os | Remove Kernel user namespace limits
   ansible.builtin.file:
@@ -242,3 +244,5 @@
   ansible.builtin.command: /usr/sbin/sysctl --system
   changed_when: false
   when: common_sysctl.changed or common_disable_hardening.changed # noqa no-handler
+  tags:
+    - molecule-notest
