@@ -311,6 +311,40 @@ argument_specs:
         description: >
           If C(true), set an hardened configuration to the SSH server.
 
+      common_admin_user:
+        type: str
+        required: true
+        description: >
+          The admin user to ensure exists. This user will be automatically
+          added to the C(wheel) group.
+      common_admin_uid:
+        type: int
+        required: false
+        description: >
+          The UID for the O(common_admin_user)
+      common_admin_group:
+        type: str
+        required: false
+        description: >
+          The admin user's group to ensure exists. If not specified, defaults
+          to the value of O(common_admin_user).
+      common_admin_gid:
+        type: int
+        required: false
+        description: >
+          The GID for the O(common_admin_group)
+      common_admin_shell:
+        type: path
+        default: /bin/bash
+        description: >
+          The default shell for the O(common_admin_user).
+      common_admin_home_dir:
+        type: path
+        default: "/home/{{ common_admin_user }}"
+        description: >
+          The home directory for the O(common_admin_user).
+          Defaults to C(/home/{{ common_admin_user }}) on non-ostree based
+          systems. Otherwise, it defaults to C(/var/home/{{ common_admin_user }}).
       common_admin_password:
         type: str
         required: false
@@ -691,6 +725,14 @@ argument_specs:
           O(common_os_target_release) automatically. Currently, this feature
           is not available for ostree Fedora variants.
 
+      common_random_mac:
+        type: bool
+        default: true
+        description: >
+          Whether or not to configure MAC address randomization. This is simply
+          a flag to enable/disable O(common_random_mac_wifi) and
+          O(common_random_mac_ethernet). If C(false) then O(common_random_mac_wifi)
+          and O(common_random_mac_ethernet) are ignored.
       common_random_mac_wifi:
         type: str
         default: random

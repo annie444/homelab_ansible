@@ -69,6 +69,7 @@ common_transactional_update_reboot_ok: true
 common_ntp_ip_family: all
 
 # MAC address hardening
+common_random_mac: true
 common_random_mac_wifi: random
 common_random_mac_ethernet: stable
 
@@ -128,3 +129,11 @@ common_netdata_kickstart_args:
   - "{{ common_netdata_claim_token is defined | ternary(['--claim-url', 'https://app.netdata.cloud', '--claim-token', common_netdata_claim_token | default('')], [])
     }}"
   - "{{ common_netdata_claim_rooms is defined | ternary(['--claim-rooms', common_netdata_claim_rooms | default('')], []) }}"
+
+common_admin_shell: /bin/bash
+common_admin_home_dir: >-
+  {%- if common_ostree -%}
+  /var/home/{{ common_admin_user }}
+  {%- else -%}
+  /home/{{ common_admin_user }}
+  {%- endif -%}
