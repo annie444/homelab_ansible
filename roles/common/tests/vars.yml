@@ -2,6 +2,7 @@
 common_ntp_servers:
   - hostname: 1.fedora.pool.ntp.org
     pool: true
+common_admin_user: "ansible"
 common_mail_smtp_host: mail.local
 common_mail_smtp_send_to: root@mail.local
 common_mail_smtp_password: "password"

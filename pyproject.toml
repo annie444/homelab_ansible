@@ -19,7 +19,6 @@ test = [
     "molecule>=25.9.0",
     "molecule-plugins>=23.0.0",
     "pytest>=8.4.2",
-    "molecule-lxd",
     "pytest-ansible>=25.8.0",
     "pytest-xdist>=3.8.0",
     "tox-ansible>=25.8.0",
@@ -38,11 +37,3 @@ line-length = 100
 addopts = ["-vvv", "-n", "2", "--log-level", "WARNING", "--color", "yes"]
 filterwarnings = ['ignore:AnsibleCollectionFinder has already been configured']
 testpaths = ["tests"]
-
-[tool.uv.sources]
-molecule-lxd = { git = "https://github.com/nextlayer-ansible/molecule-lxd.git", rev = "main" }
-
-[dependency-groups]
-numpy = [
-    "numpy>=2.3.5",
-]

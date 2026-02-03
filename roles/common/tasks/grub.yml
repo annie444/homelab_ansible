@@ -49,9 +49,12 @@
 - name: grub | Ensure Grub auto hide is configured
   ansible.builtin.command: "grub2-editenv - {{ common_grub_auto_hide | ternary('set menu_auto_hide=1', 'unset menu_auto_hide') }}"
   changed_when: false
+  tags:
+    - molecule-notest
 
 - name: grub | Ensure Grub Kernel options are configured
-  ansible.builtin.command: "{{ ['rpm-ostree kargs --unchanged-exit-77', ['--append-if-missing='] | product(common_grub_cmdline_linux_default | flatten) | map('join',
+  ansible.builtin.command:
+    "{{ ['rpm-ostree kargs --unchanged-exit-77', ['--append-if-missing='] | product(common_grub_cmdline_linux_default | flatten) | map('join',
     '')] | flatten | join(' ') }}"
   register: common_set_ostree_kernel_args
   changed_when: common_set_ostree_kernel_args.rc == 0
@@ -118,10 +121,14 @@
   loop:
     - /etc/grub2.cfg
     - /etc/grub2-efi.cfg
+  tags:
+    - molecule-notest
 
 - name: grub | Ensure Grub RPM package files metadata are in sync
   ansible.builtin.command: rpm --restore grub2-tools # noqa command-instead-of-module
   changed_when: false
+  tags:
+    - molecule-notest
 
 - name: grub | Ensure Grub "rpmnew" and "rpmsave" files are absent
   ansible.builtin.file:

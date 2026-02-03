@@ -194,13 +194,4 @@
   loop:
     - /etc/dnf/automatic.conf
     - /etc/dnf/dnf.conf
-
-- name: dnf | Ensure previous "dnf-automatic-restart" extra configuration is absent
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /usr/local/sbin/dnf-automatic-restart
-    - /etc/systemd/system/dnf-automatic-install.service.d/dnf-automatic-restart.conf
-    - /etc/systemd/system/dnf-automatic-install.service.d/
 # vim: set ft=yaml.ansible:
