@@ -100,7 +100,7 @@ test_playbook_absolute := clean(join(ansible_basedir, test_playbook_file))
 test_playbook_relative := replace(test_playbook_absolute, git_root + "/", "")
 
 [doc("Reset the test script")]
-[group("dev")]
+[group("test")]
 reset-test:
     #!/usr/bin/env bash
     {{ debug }}
@@ -124,12 +124,12 @@ reset-test:
     EOF
 
 [doc("Run the test script")]
-[group("dev")]
+[group("test")]
 test:
     @just ansible {{ test_playbook }}
 
 [doc("Run an Ansible playbook (auto appends `.yml` to the playbook name)")]
-[group("dev")]
+[group("run")]
 ansible playbook:
     #!/usr/bin/env bash
     {{ debug }}
@@ -137,7 +137,7 @@ ansible playbook:
     {{ ansible-playbook }} {{ ansible_inventory_arg }} {{ playbook }}.yml
 
 [doc("Run a command in the development environment on the local machine")]
-[group("dev")]
+[group("run")]
 cmd target cmd become_user='root':
     #!/usr/bin/env bash
     {{ debug }}
@@ -159,6 +159,16 @@ cmd target cmd become_user='root':
     ANSIBLE_CMD+=("{{ target }}")
     {{ ansible }} {{ ansible_default_args }} "${BECOME_ARGS[@]}" \
       --module-name ansible.builtin.shell --args "$ARGS" "{{ target }}"
+
+[group("git")]
+show-file-sizes:
+    #!/usr/bin/env bash
+    git rev-list --objects --all --missing=print | \
+        git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | \
+        sed -n 's/^blob //p' | \
+        sort --numeric-sort --key=2 | \
+        cut -c 1-12,41- | \
+        $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest
 
 [private]
 args cmd:

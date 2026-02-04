@@ -4,6 +4,7 @@ local_test/
 .serena/
 /extensions/builds/
 .vagrant
+*.tar.gz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
