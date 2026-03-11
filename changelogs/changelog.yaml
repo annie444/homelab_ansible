@@ -1,0 +1,27 @@
+ancestor: null
+releases:
+  1.0.0:
+    release_summary: |
+      This is the first proper release of the ``annie444.homelab`` collection.
+      This collection contains all the roles/modules I use for my personal homelab.
+    modules:
+      - description: A custom action plugin for Ansible.
+        name: sample_action
+        namespace: ""
+      - description: A custom module plugin for Ansible.
+        name: sample_module
+        namespace: ""
+    plugins:
+      filter:
+        - description: A custom filter plugin for Ansible.
+          name: sample_filter
+          namespace: null
+      lookup:
+        - description: A custom lookup plugin for Ansible.
+          name: sample_lookup
+          namespace: null
+      test:
+        - description: A custom test plugin for Ansible.
+          name: sample_test
+          namespace: null
+    release_date: "2026-03-11"

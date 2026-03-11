@@ -1,18 +1,17 @@
 ---
-name: Release
+name: Tag
 
 on:
-  release:
-    types:
-      - published
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
   release:
     name: Upload releases
     runs-on: ubuntu-latest
-    environment: release
-    secrets:
-      ansible_galaxy_api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -45,9 +44,21 @@ jobs:
           TARBALL=$(ls -1 ./*.tar.gz)
           echo "tarball=$TARBALL" >>$GITHUB_OUTPUT
 
-      - name: Publish the collection on Galaxy
+      - name: Generate the release notes
+        id: changelog
         shell: bash
         run: |
-          uv run ansible-galaxy collection publish \
-            "${{ steps.collection.outputs.tarball }}" \
-          --api-key "${{ secrets.ansible_galaxy_api_key }}"
+          uv run
+          CHANGELOG=$
+          echo "tarball=$TARBALL" >>$GITHUB_OUTPUT
+
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ steps.changelog.outputs.path }}
+          draft: false
+          prerelease: false
+          files: ${{ steps.collection.outputs.tarball }}
+          generate_release_notes: true
+          append_body: true
+          make_latest: true

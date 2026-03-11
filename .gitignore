@@ -2,6 +2,7 @@
 
 local_test/
 .serena/
+.claude/
 /extensions/builds/
 .vagrant
 *.tar.gz

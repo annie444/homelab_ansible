@@ -1,0 +1,45 @@
+objects:
+  role:
+    common:
+      description: Role description.
+      name: common
+      version_added: null
+plugins:
+  become: {}
+  cache: {}
+  callback: {}
+  cliconf: {}
+  connection: {}
+  filter:
+    sample_filter:
+      description: A custom filter plugin for Ansible.
+      name: sample_filter
+      version_added: 1.0.0
+  httpapi: {}
+  inventory: {}
+  lookup:
+    sample_lookup:
+      description: A custom lookup plugin for Ansible.
+      name: sample_lookup
+      version_added: 1.0.0
+  module:
+    sample_action:
+      description: A custom action plugin for Ansible.
+      name: sample_action
+      namespace: ""
+      version_added: 1.0.0
+    sample_module:
+      description: A custom module plugin for Ansible.
+      name: sample_module
+      namespace: ""
+      version_added: 1.0.0
+  netconf: {}
+  shell: {}
+  strategy: {}
+  test:
+    sample_test:
+      description: A custom test plugin for Ansible.
+      name: sample_test
+      version_added: 1.0.0
+  vars: {}
+version: 1.0.0
