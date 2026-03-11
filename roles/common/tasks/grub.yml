@@ -53,8 +53,7 @@
     - molecule-notest
 
 - name: grub | Ensure Grub Kernel options are configured
-  ansible.builtin.command:
-    "{{ ['rpm-ostree kargs --unchanged-exit-77', ['--append-if-missing='] | product(common_grub_cmdline_linux_default | flatten) | map('join',
+  ansible.builtin.command: "{{ ['rpm-ostree kargs --unchanged-exit-77', ['--append-if-missing='] | product(common_grub_cmdline_linux_default | flatten) | map('join',
     '')] | flatten | join(' ') }}"
   register: common_set_ostree_kernel_args
   changed_when: common_set_ostree_kernel_args.rc == 0

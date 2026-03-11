@@ -61,9 +61,6 @@ enable_list:
   # add yaml here if you want to avoid ignoring yaml checks when yamllint
   # library is missing. Normally its absence just skips using that rule.
   - yaml
-# Report only a subset of tags and fully ignore any others
-# tags:
-#   - jinja[spacing]
 
 # Ansible-lint does not fail on warnings from the rules or tags listed below
 warn_list:

@@ -5,8 +5,8 @@
   become: true
   become_user: root
   vars:
-    ns_re_search: '\b(((\d{1,3}\.){3}(\d{1,3}))|(([a-f0-9]{4}:)+(:?[a-f0-9]{1,4})))\b'
-    continue_str: ' \'
+    ns_re_search: "\\b(((\\d{1,3}\\.){3}(\\d{1,3}))|(([a-f0-9]{4}:)+(:?[a-f0-9]{1,4})))\\b"
+    continue_str: " \\"
   tasks:
     - name: Set up the temp dir
       ansible.builtin.file:

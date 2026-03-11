@@ -1,11 +1,11 @@
 ---
-- name: Retrieve container log
+- name: create-fail | Retrieve container log
   ansible.builtin.command:
     cmd: podman logs {{ item.container.Name }}
   changed_when: false
   register: logfile_cmd
 
-- name: Display container log and fail
+- name: create-fail | Display container log and fail
   ansible.builtin.fail:
     msg: |
       Container {{ item.container.Name }} failed to start properly.

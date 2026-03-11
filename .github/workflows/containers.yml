@@ -22,7 +22,6 @@ on:
     paths:
       - extensions/ee/**
   workflow_dispatch:
-
 jobs:
   build-and-push:
     name: Build all containers

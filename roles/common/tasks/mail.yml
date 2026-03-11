@@ -11,8 +11,7 @@
 - name: mail | Set configs for the mail user
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
-    common_postfix_conf:
-      "{{ common_postfix_conf | ansible.builtin.combine({'smtp_sasl_auth_enable': 'yes', 'smtp_sasl_security_options': 'noanonymous, noplaintext',
+    common_postfix_conf: "{{ common_postfix_conf | ansible.builtin.combine({'smtp_sasl_auth_enable': 'yes', 'smtp_sasl_security_options': 'noanonymous, noplaintext',
       'smtp_sasl_tls_security_options': 'noanonymous', 'smtp_sasl_password_maps': 'hash:/etc/postfix/sasl_passwd'}) }}"
 
 - name: mail | Configure the postfix files
@@ -22,8 +21,7 @@
 - name: mail | Configure the sasl password
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
-    common_postfix_files:
-      "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
+    common_postfix_files: "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
       'postmap': True | bool}]}}"
 
 - name: mail | Setup postfix

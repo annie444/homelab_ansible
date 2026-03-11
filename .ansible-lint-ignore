@@ -1,1 +1,7 @@
 roles/common/tasks/ntp.yml var-naming[no-role-prefix]
+roles/common/defaults/main.yml jinja[spacing]
+roles/common/defaults/main.yml yaml[line-length]
+roles/common/tasks/firewall.yml yaml[line-length]
+roles/common/tasks/grub.yml yaml[line-length]
+roles/common/tasks/mail.yml yaml[line-length]
+
