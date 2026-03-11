@@ -1,18 +1,24 @@
 ---
-name: "CI"
-
-concurrency:
-  group: ${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+name: CI
 
 on:
   pull_request:
     branches:
       - main
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+      - reopened
   push:
     branches:
       - main
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   changelog:
     runs-on: ubuntu-latest
@@ -21,7 +27,7 @@ jobs:
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-changelog')"
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -47,7 +53,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -81,7 +87,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
