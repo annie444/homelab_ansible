@@ -45,17 +45,15 @@ jobs:
           echo "tarball=$TARBALL" >>$GITHUB_OUTPUT
 
       - name: Generate the release notes
-        id: changelog
         shell: bash
         run: |
-          uv run
-          CHANGELOG=$
-          echo "tarball=$TARBALL" >>$GITHUB_OUTPUT
+          uv run antsibull-changelog generate --only-latest \
+            --output tmp-changelog.md --output-format md
 
       - name: Release to GitHub
         uses: softprops/action-gh-release@v2
         with:
-          body_path: ${{ steps.changelog.outputs.path }}
+          body_path: ./tmp-changelog.md
           draft: false
           prerelease: false
           files: ${{ steps.collection.outputs.tarball }}
