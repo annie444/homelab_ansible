@@ -14,14 +14,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   changelog:
-    runs-on: ubuntu-latest
     name: Requires changelog
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-changelog')"
     steps:
@@ -30,20 +31,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup python
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          cache: pip
-          python-version: "3.13"
+          python-version-file: ".python-version"
+
+      - name: Set up UV
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-suffix: "changelog"
 
       - name: Install python dependencies
         run: |
-          pip install -U pyyaml antsibull-changelog
-
+          uv sync --locked --only-group changelog
         shell: bash
+
       - name: Validate changelog
         run: |
-          antsibull-changelog lint
+          uv run antsibull-changelog lint
         shell: bash
 
   build-import:
@@ -59,13 +65,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          cache: pip
-          python-version: "3.13"
+          python-version-file: ".python-version"
 
-      - name: Ensure ansible-core and galaxy-importer is installed
-        shell: bash
+      - name: Set up UV
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-suffix: "build"
+
+      - name: Install python dependencies
         run: |
-          pip install ansible-core galaxy-importer
+          uv sync --locked --only-group build
+        shell: bash
 
       - name: Update galaxy-importer cfg
         shell: bash
@@ -76,7 +87,7 @@ jobs:
       - name: Build the collection tarball and run galaxy importer on it
         shell: bash
         run: |
-          python -m galaxy_importer.main --git-clone-path . --output-path /tmp
+          uv run -m galaxy_importer.main --git-clone-path . --output-path /tmp
         env:
           GALAXY_IMPORTER_CONFIG: /tmp/galaxy-importer.cfg
 
@@ -93,19 +104,23 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          cache: pip
-          python-version: "3.13"
+          python-version-file: ".python-version"
 
-      - name: Install ansible-lint from pip
-        shell: bash
+      - name: Set up UV
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-suffix: "lint"
+
+      - name: Install python dependencies
         run: |
-          pip install ansible-lint
-          ansible-lint --version
+          uv sync --locked --only-group lint
+        shell: bash
 
       - name: Run ansible-lint
         shell: bash
         run: |
-          ansible-lint
+          uv run ansible-lint
 
   tox-matrix:
     name: Get Tox Matrix
@@ -117,15 +132,25 @@ jobs:
       unit-matrix: ${{ steps.unit-matrix.outputs.envlist }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
-          cache: pip
+          python-version-file: ".python-version"
+
+      - name: Set up UV
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-suffix: "matrix"
+
+      - name: Install python dependencies
+        run: |
+          uv sync --locked --only-group matrix
+        shell: bash
 
       - name: Install Podman
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -133,26 +158,20 @@ jobs:
           packages: podman
           version: "matrix-1.0"
 
-      - name: Install Python dependencies
-        shell: bash
-        run: |
-          python3.13 -m pip install tox-ansible
-          python3.13 -m tox --version
-
       - name: Generate sanity matrix
         id: sanity-matrix
         run: >
-          python3.13 -m tox --ansible --gh-matrix --matrix-scope sanity --conf tox-ansible.ini
+          uv run -m tox --ansible --gh-matrix --matrix-scope sanity --conf tox-ansible.ini
 
       - name: Generate unit matrix
         id: unit-matrix
         run: >
-          python3.13 -m tox --ansible --gh-matrix --matrix-scope unit --conf tox-ansible.ini
+          uv run -m tox --ansible --gh-matrix --matrix-scope unit --conf tox-ansible.ini
 
       - name: Generate integration matrix
         id: integration-matrix
         run: >
-          python3.13 -m tox --ansible --gh-matrix --matrix-scope integration --conf tox-ansible.ini
+          uv run -m tox --ansible --gh-matrix --matrix-scope integration --conf tox-ansible.ini
 
   sanity:
     name: Run tox sanity tests
@@ -166,11 +185,11 @@ jobs:
         tox: ${{ fromJSON(needs.tox-matrix.outputs.sanity-matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Set up Python
+      - name: Set up Tox python
         uses: actions/setup-python@v6
         with:
           python-version: "${{ matrix.tox.python }}"
@@ -209,7 +228,7 @@ jobs:
         tox: ${{ fromJSON(needs.tox-matrix.outputs.unit-matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -257,7 +276,7 @@ jobs:
       contents: read
       deployments: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

@@ -1,10 +1,10 @@
 [project]
 name = "homelab-ansible"
 version = "0.1.0"
-requires-python = ">=3.13.2"
+requires-python = ">=3.10"
 dependencies = [
-    "ansible>=12.0.0",
-    "ansible-core>=2.19.2",
+    "ansible>=10.7.0",
+    "ansible-core>=2.17.14",
     "cryptography>=46.0.1",
     "dnspython>=2.8.0",
     "jmespath>=1.0.1",
@@ -14,26 +14,44 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ansible-dev-tools>=25.8.3", "ansible-lint>=25.9.0"]
 test = [
-    "molecule>=25.9.0",
-    "molecule-plugins>=23.0.0",
-    "pytest>=8.4.2",
-    "pytest-ansible>=25.8.0",
+    "molecule>=26.3.0",
+    "molecule-plugins>=25.8.12",
+    "pytest>=9.0.2",
+    "pytest-ansible>=26.2.0",
     "pytest-xdist>=3.8.0",
-    "tox-ansible>=25.8.0",
+    "tox-ansible>=26.2.1",
 ]
-scripts = [
-    "mashumaro[yaml]>=3.17",
-    "pytablewriter>=1.2.1",
-    "pyyaml>=6.0.2",
-    "rich-click>=1.9.3",
-]
-
-[tool.black]
-line-length = 100
 
 [tool.pytest.ini_options]
 addopts = ["-vvv", "-n", "2", "--log-level", "WARNING", "--color", "yes"]
 filterwarnings = ['ignore:AnsibleCollectionFinder has already been configured']
 testpaths = ["tests"]
+
+[dependency-groups]
+build = [
+    "ansible-core>=2.17.14",
+    "galaxy-importer>=0.4.37",
+]
+changelog = [
+    "antsibull-changelog>=0.35.0",
+    "pyyaml>=6.0.2",
+]
+dev = [
+    "ansible-dev-tools>=25.10.0",
+]
+ee = [
+    "ansible-builder>=3.1.1",
+]
+lint = [
+    "ansible-lint>=26.1.0",
+]
+matrix = [
+    "tox-ansible>=26.2.1",
+]
+scripts = [
+    "mashumaro[yaml]>=3.20",
+    "pytablewriter>=1.2.1",
+    "pyyaml>=6.0.2",
+    "rich-click>=1.9.7",
+]
