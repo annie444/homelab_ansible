@@ -1,4 +1,3 @@
-#!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
@@ -9,17 +8,22 @@
 # ]
 # ///
 from __future__ import annotations
-import rich_click as click
-from rich_click import rich_click as rc
-from mashumaro.mixins.yaml import DataClassYAMLMixin
-from mashumaro.config import BaseConfig
+
+import json
+import re
+
 from dataclasses import dataclass
 from pathlib import Path
-import re
-import json
-from typing import List, Dict, Optional, Union, Tuple
+from typing import Dict, List, Optional, Tuple, Union
+
+import rich_click as click
+
+from mashumaro.config import BaseConfig
+from mashumaro.mixins.yaml import DataClassYAMLMixin
 from pytablewriter import MarkdownTableWriter
 from pytablewriter.style import Style
+from rich_click import rich_click as rc
+
 
 rc.TEXT_MARKUP = "rich"
 rc.STYLE_OPTION = "bold magenta"

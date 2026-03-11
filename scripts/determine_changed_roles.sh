@@ -15,8 +15,13 @@ if [[ -z "$BASE_REF" ]]; then
   fi
 fi
 
-declare -a ALL_ROLES=("common")
-declare -A ROLE_SCENARIOS=(["common"]="common")
+mapfile -t ALL_ROLES < <(find "${ROOT_DIR}/roles/" -type d -mindepth 1 -maxdepth 1 -exec basename {} \;)
+declare -A ROLE_SCENARIOS
+for role in "${ALL_ROLES[@]}"; do
+  if [[ -z "${ROLE_SCENARIOS[$role]:-}" ]]; then
+    ROLE_SCENARIOS["$role"]="$role"
+  fi
+done
 declare -a OS_VARIANTS=("fedora42" "fedora43")
 
 changed_roles=()
@@ -25,7 +30,7 @@ while IFS= read -r file; do
   rel="${file#roles/}"
   role="${rel%%/*}"
   if [[ -n "${ROLE_SCENARIOS[$role]:-}" ]]; then
-    if [[ ! " ${changed_roles[*]} " =~ " ${role} " ]]; then
+    if [[ ! " ${changed_roles[*]} " =~ " ""${role}"" " ]]; then
       changed_roles+=("$role")
     fi
   fi

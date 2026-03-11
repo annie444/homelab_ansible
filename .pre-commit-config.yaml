@@ -12,8 +12,6 @@ repos:
       - id: check-symlinks
       - id: debug-statements
       - id: end-of-file-fixer
-      - id: no-commit-to-branch
-        args: [--branch, main]
       - id: trailing-whitespace
 
   - repo: https://github.com/asottile/add-trailing-comma
@@ -39,12 +37,9 @@ repos:
         name: Sort import statements using isort
         args: ["--filter-files"]
 
-  - repo: https://github.com/psf/black
-    rev: 26.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.5
     hooks:
-      - id: black
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
