@@ -47,7 +47,7 @@
           {%-     set dns.ns = dns.ns | default([]) + [match[0]] -%}
           {%-   endif -%}
           {%- endfor -%}
-          {{ dns.ns }}
+          {{ dns.ns | ansible.utils.ipaddr('address') }}
 
     - name: Set DNS servers
       ansible.builtin.shell: |
