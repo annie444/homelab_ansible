@@ -1,60 +1,102 @@
 ---
-- name: ntp | Set the NTP servers
-  when: common_ntp_servers is defined
-  ansible.builtin.set_fact:
-    timesync_ntp_servers: "{{ common_ntp_servers }}"
+- name: Attempt to configure NTP
+  block:
+    - name: ntp | Set the NTP servers
+      when: common_ntp_servers is defined
+      ansible.builtin.set_fact:
+        timesync_ntp_servers: "{{ common_ntp_servers }}"
 
-- name: ntp | Set the PTP domains
-  when: common_ptp_domains is defined
-  ansible.builtin.set_fact:
-    timesync_ptp_domains: "{{ common_ptp_domains }}"
+    - name: ntp | Set the PTP domains
+      when: common_ptp_domains is defined
+      ansible.builtin.set_fact:
+        timesync_ptp_domains: "{{ common_ptp_domains }}"
 
-- name: ntp | Set the DHCP server
-  when: common_dhcp_ntp_servers is defined
-  ansible.builtin.set_fact:
-    timesync_dhcp_ntp_servers: "{{ common_dhcp_ntp_servers }}"
+    - name: ntp | Set the DHCP server
+      when: common_dhcp_ntp_servers is defined
+      ansible.builtin.set_fact:
+        timesync_dhcp_ntp_servers: "{{ common_dhcp_ntp_servers }}"
 
-- name: ntp | Set the step level
-  when: common_ntp_step_threshold is defined
-  ansible.builtin.set_fact:
-    timesync_step_threshold: "{{ common_ntp_step_threshold }}"
+    - name: ntp | Set the step level
+      when: common_ntp_step_threshold is defined
+      ansible.builtin.set_fact:
+        timesync_step_threshold: "{{ common_ntp_step_threshold }}"
 
-- name: ntp | Set the max distance
-  when: common_ntp_max_distance is defined
-  ansible.builtin.set_fact:
-    timesync_max_distance: "{{ common_ntp_max_distance }}"
+    - name: ntp | Set the max distance
+      when: common_ntp_max_distance is defined
+      ansible.builtin.set_fact:
+        timesync_max_distance: "{{ common_ntp_max_distance }}"
 
-- name: ntp | Set the minimum sources
-  when: common_ntp_min_sources is defined
-  ansible.builtin.set_fact:
-    timesync_min_sources: "{{ common_ntp_min_sources }}"
+    - name: ntp | Set the minimum sources
+      when: common_ntp_min_sources is defined
+      ansible.builtin.set_fact:
+        timesync_min_sources: "{{ common_ntp_min_sources }}"
 
-- name: ntp | Set the hardware interfaces
-  when: common_ntp_hwts_interfaces is defined
-  ansible.builtin.set_fact:
-    timesync_ntp_hwts_interfaces: "{{ common_ntp_hwts_interfaces }}"
+    - name: ntp | Set the hardware interfaces
+      when: common_ntp_hwts_interfaces is defined
+      ansible.builtin.set_fact:
+        timesync_ntp_hwts_interfaces: "{{ common_ntp_hwts_interfaces }}"
 
-- name: ntp | Set the NTP provider
-  when: common_ntp_provider is defined
-  ansible.builtin.set_fact:
-    timesync_ntp_provider: "{{ common_ntp_provider }}"
+    - name: ntp | Set the NTP provider
+      when: common_ntp_provider is defined
+      ansible.builtin.set_fact:
+        timesync_ntp_provider: "{{ common_ntp_provider }}"
 
-- name: ntp | Set custom chrony settings
-  when: common_chrony_custom_settings is defined
-  ansible.builtin.set_fact:
-    timesync_chrony_custom_settings: "{{ common_chrony_custom_settings }}"
+    - name: ntp | Set custom chrony settings
+      when: common_chrony_custom_settings is defined
+      ansible.builtin.set_fact:
+        timesync_chrony_custom_settings: "{{ common_chrony_custom_settings }}"
 
-- name: ntp | Set the transactional update consent
-  when: common_transactional_update_reboot_ok is defined
-  ansible.builtin.set_fact:
-    timesync_transactional_update_reboot_ok: "{{ common_transactional_update_reboot_ok }}"
+    - name: ntp | Set the transactional update consent
+      when: common_transactional_update_reboot_ok is defined
+      ansible.builtin.set_fact:
+        timesync_transactional_update_reboot_ok: "{{ common_transactional_update_reboot_ok }}"
 
-- name: ntp | Set the NTP IP family
-  when: common_ntp_ip_family is defined
-  ansible.builtin.set_fact:
-    timesync_ntp_ip_family: "{{ common_ntp_ip_family }}"
+    - name: ntp | Set the NTP IP family
+      when: common_ntp_ip_family is defined
+      ansible.builtin.set_fact:
+        timesync_ntp_ip_family: "{{ common_ntp_ip_family }}"
 
-- name: ntp | Configure the NTP client
-  ansible.builtin.include_role:
-    name: fedora.linux_system_roles.timesync
+    - name: ntp | Configure the NTP client
+      ansible.builtin.include_role:
+        name: fedora.linux_system_roles.timesync
+  rescue:
+    - name: ntp | Define the units to check
+      ansible.builtin.set_fact:
+        common_timesync_services: >-
+          {%- set ts = namespace(services=[]) -%}
+          {%- if timesync_mode is defined and timesync_mode == 1 -%}
+          {%-   if timesync_ntp_provider is defined and timesync_ntp_provider == 'chrony' -%}
+          {%-     set ts.services = ts.services | default([]) + ['chronyd'] -%}
+          {%-   elif timesync_ntp_provider is defined and timesync_ntp_provider == 'ntp' -%}
+          {%-     set ts.services = ts.services | default([]) + ['ntpd'] -%}
+          {%-   endif -%}
+          {%- elif timesync_mode is defined and timesync_mode == 2 -%}
+          {%-   set ts.services = ts.services | default([]) + ['ptp4l'] -%}
+          {%-   if timesync_mode2_hwts is defined and timesync_mode2_hwts -%}
+          {%-     set ts.services = ts.services | default([]) + ['phc2sys'] -%}
+          {%-   endif -%}
+          {%- elif timesync_mode is defined and timesync_mode == 3 -%}
+          {%-   set ts.services = ts.services | default([]) + ['timemaster'] -%}
+          {%- endif -%}
+          {{ ts.services }}
+
+    - name: ntp | Check that variable 'common_timesync_services' is defined
+      ansible.builtin.assert:
+        that: common_timesync_services is defined and common_timesync_services | length > 0
+        fail_msg: "Variable 'common_timesync_services' is not defined"
+
+    - name: ntp | Get the failure explanation
+      ansible.builtin.command: "journalctl --system --no-pager --unit={{ item }}"
+      loop: "{{ common_timesync_services }}"
+      register: common_timesync_services_journal
+      failed_when: false
+      changed_when: false
+
+    - name: ntp | Show the journal
+      ansible.builtin.debug:
+        var: common_timesync_services_journal
+
+    - name: ntp | Fail
+      ansible.builtin.fail:
+        msg: "The timesync role failed to run"
 # vim: set ft=yaml.ansible:
