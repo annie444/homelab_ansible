@@ -1,5 +1,5 @@
 ---
-- name: Attempt to configure NTP
+- name: ntp | Attempt to configure NTP
   block:
     - name: ntp | Set the NTP servers
       when: common_ntp_servers is defined
