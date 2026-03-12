@@ -78,11 +78,31 @@
       ansible.builtin.set_fact:
         test_path: "{{ integration_tests_path }}{{ test_name }}"
 
+    - name: Check for default vars
+      ansible.builtin.stat:
+        path: "{{ test_path }}/defaults/main.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: converge_default_vars
+
     - name: Load the role's default vars
+      when: converge_default_vars.stat.exists
       ansible.builtin.include_vars:
         file: "{{ test_path }}/defaults/main.yml"
 
+    - name: Check for extra vars
+      ansible.builtin.stat:
+        path: "{{ test_path }}/vars/main.yml"
+        get_mime: false
+        get_checksum: false
+        get_attributes: false
+        follow: true
+      register: converge_extra_vars
+
     - name: Load the role's extra vars
+      when: converge_extra_vars.stat.exists
       ansible.builtin.include_vars:
         file: "{{ test_path }}/vars/main.yml"
 

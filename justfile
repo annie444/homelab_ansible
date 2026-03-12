@@ -77,8 +77,9 @@ default:
 # Set up the development environment
 [group("dev")]
 env:
+    #!/usr/bin/env bash
     cd {{ git_root }}
-    {{ uv }} sync --all-groups
+    {{ uv }} sync --all-groups --all-extras
     source {{ activate_source }}
 
 # Query Ansible variables for the first host in the inventory.
@@ -122,6 +123,38 @@ reset-test:
             var: test_var
     # vim: set ft=yaml.ansible:
     EOF
+
+
+[doc("Set up the test directory and playbook")]
+[group("test")]
+setup-test:
+    #!/usr/bin/env bash
+    {{ debug }}
+    if [[ ! -d "{{ ansible_basedir }}" ]]; then
+        {{ mkdir }} -p "{{ ansible_basedir }}"
+    fi
+    if [[ ! -f "{{ ansible_cfg }}" ]]; then
+        {{ cat }} << EOF > {{ ansible_cfg }}
+        [defaults]
+        inventory = ./inventory/
+        EOF
+    fi
+    if [[ ! -d "{{ clean(join(ansible_basedir, 'inventory')) }}" ]]; then
+        {{ mkdir }} -p "{{ clean(join(ansible_basedir, 'inventory')) }}"
+    fi
+    if [[ ! -f "{{ clean(join(ansible_basedir, 'inventory/main.yml')) }}" ]]; then
+        {{ cat }} << EOF > {{ clean(join(ansible_basedir, 'inventory/main.yml')) }}
+        all:
+          hosts:
+            localhost:
+              ansible_connection: local
+        EOF
+    fi
+    if [[ ! -f "{{ test_playbook_absolute }}" ]]; then
+        just reset-test
+    fi
+
+
 
 [doc("Run the test script")]
 [group("test")]

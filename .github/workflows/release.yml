@@ -11,8 +11,6 @@ jobs:
     name: Upload releases
     runs-on: ubuntu-latest
     environment: release
-    secrets:
-      ansible_galaxy_api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -50,4 +48,4 @@ jobs:
         run: |
           uv run ansible-galaxy collection publish \
             "${{ steps.collection.outputs.tarball }}" \
-          --api-key "${{ secrets.ansible_galaxy_api_key }}"
+          --api-key "${{ secrets.ANSIBLE_GALAXY_API_KEY }}"
