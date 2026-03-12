@@ -97,6 +97,7 @@
         var: common_timesync_services_journal
 
     - name: ntp | Fail
+      when: ansible_connection != 'containers.podman.podman'
       ansible.builtin.fail:
         msg: "The timesync role failed to run"
 # vim: set ft=yaml.ansible:
