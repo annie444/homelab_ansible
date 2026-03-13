@@ -60,3 +60,4 @@ jobs:
           generate_release_notes: true
           append_body: true
           make_latest: true
+# vim: set ft=yaml:

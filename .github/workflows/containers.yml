@@ -106,3 +106,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           push: true
           sbom: true
+# vim: set ft=yaml:

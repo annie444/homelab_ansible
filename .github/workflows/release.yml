@@ -49,3 +49,5 @@ jobs:
           uv run ansible-galaxy collection publish \
             "${{ steps.collection.outputs.tarball }}" \
           --api-key "${{ secrets.ANSIBLE_GALAXY_API_KEY }}"
+
+# vim: set ft=yaml:
