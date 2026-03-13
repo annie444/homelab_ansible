@@ -29,7 +29,7 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          uv sync --locked --all-extras --dev
+          uv sync --locked --all-extras --all-groups
         shell: bash
 
       - name: Build the collection
