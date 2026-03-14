@@ -1,6 +1,6 @@
 [project]
 name = "homelab-ansible"
-version = "0.1.0"
+version = "1.0.1"
 requires-python = ">=3.10"
 dependencies = [
     "ansible>=10.7.0",
@@ -29,26 +29,12 @@ filterwarnings = ['ignore:AnsibleCollectionFinder has already been configured']
 testpaths = ["tests"]
 
 [dependency-groups]
-build = [
-    "ansible-core>=2.17.14",
-    "galaxy-importer>=0.4.37",
-]
-changelog = [
-    "antsibull-changelog>=0.35.0",
-    "pyyaml>=6.0.2",
-]
-dev = [
-    "ansible-dev-tools>=25.10.0",
-]
-ee = [
-    "ansible-builder>=3.1.1",
-]
-lint = [
-    "ansible-lint>=26.1.0",
-]
-matrix = [
-    "tox-ansible>=26.2.1",
-]
+build = ["ansible-core>=2.17.14", "galaxy-importer>=0.4.37"]
+changelog = ["antsibull-changelog>=0.35.0", "pyyaml>=6.0.2"]
+dev = ["ansible-dev-tools>=25.10.0"]
+ee = ["ansible-builder>=3.1.1"]
+lint = ["ansible-lint>=26.1.0"]
+matrix = ["tox-ansible>=26.2.1"]
 scripts = [
     "mashumaro[yaml]>=3.20",
     "pytablewriter>=1.2.1",

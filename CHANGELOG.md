@@ -2,16 +2,30 @@
 
 **Topics**
 
+- <a href="#v1-0-1">v1\.0\.1</a>
 - <a href="#v1-0-0">v1\.0\.0</a>
+  - <a href="#release-summary">Release Summary</a>
   - <a href="#new-plugins">New Plugins</a>
     - <a href="#filter">Filter</a>
     - <a href="#lookup">Lookup</a>
     - <a href="#test">Test</a>
   - <a href="#new-modules">New Modules</a>
+  - <a href="#new-roles">New Roles</a>
+
+<a id="v1-0-1"></a>
+
+## v1\.0\.1
 
 <a id="v1-0-0"></a>
 
 ## v1\.0\.0
+
+<a id="release-summary"></a>
+
+### Release Summary
+
+This is the first proper release of the <code>annie444\.homelab</code> collection\.
+This collection contains all the roles/modules I use for my personal homelab\.
 
 <a id="new-plugins"></a>
 
@@ -41,3 +55,9 @@
 
 - annie444\.homelab\.sample_action \- A custom action plugin for Ansible\.
 - annie444\.homelab\.sample_module \- A custom module plugin for Ansible\.
+
+<a id="new-roles"></a>
+
+### New Roles
+
+- annie444\.homelab\.common \- Install all requirements of this collection

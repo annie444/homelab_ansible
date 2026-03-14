@@ -1,10 +1,11 @@
-ancestor: null
+---
+ancestor:
 releases:
   1.0.0:
     changes:
-      release_summary: |
-        This is the first proper release of the ``annie444.homelab`` collection.
-        This collection contains all the roles/modules I use for my personal homelab.
+      release_summary:
+        "This is the first proper release of the ``annie444.homelab`` collection.\nThis collection contains all the roles/modules I use for my personal
+        homelab.\n"
     modules:
       - description: A custom action plugin for Ansible.
         name: sample_action
@@ -12,22 +13,28 @@ releases:
       - description: A custom module plugin for Ansible.
         name: sample_module
         namespace: ""
+    objects:
+      role:
+        - description: Install all requirements of this collection
+          name: common
+          namespace:
     plugins:
       filter:
         - description: A custom filter plugin for Ansible.
           name: sample_filter
-          namespace: null
+          namespace:
       lookup:
         - description: A custom lookup plugin for Ansible.
           name: sample_lookup
-          namespace: null
+          namespace:
       test:
         - description: A custom test plugin for Ansible.
           name: sample_test
-          namespace: null
-    objects:
-      role:
-        - name: common
-          description: Install all requirements of this collection
-          namespace: null
+          namespace:
     release_date: "2026-03-11"
+  1.0.1:
+    changes:
+      release_summary: Fix the journald system role inclusion
+      bugfixes:
+        - Remove all instances of `| default(undef())`, as these don't actually undefine the variable, but rather make it so the test `var is defined` fail.
+    release_date: "2026-03-14"
