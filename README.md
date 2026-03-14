@@ -1,6 +1,6 @@
 # Annie444 Homelab Collection
 
-[![CI](https://github.com/annie444/homelab_ansible/actions/workflows/tests.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/tests.yml) [![Containers](https://github.com/annie444/homelab_ansible/actions/workflows/containers.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/containers.yml) [![Release](https://github.com/annie444/homelab_ansible/actions/workflows/release.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/release.yml)
+[![CI](https://github.com/annie444/homelab_ansible/actions/workflows/tests.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/tests.yml) [![Containers](https://github.com/annie444/homelab_ansible/actions/workflows/containers.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/containers.yml) [![Tag](https://github.com/annie444/homelab_ansible/actions/workflows/tag.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/tag.yml) [![Release](https://github.com/annie444/homelab_ansible/actions/workflows/release.yml/badge.svg)](https://github.com/annie444/homelab_ansible/actions/workflows/release.yml)
 
 This repository contains the `annie444.homelab` Ansible Collection.
 
