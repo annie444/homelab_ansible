@@ -155,7 +155,7 @@
 
 - name: dnf | Ensure dnf-automatic-on-shutdown service is configured
   ansible.builtin.systemd_service:
-    name: dnf | dnf-automatic-on-shutdown.service
+    name: dnf-automatic-on-shutdown.service
     state: started
     enabled: true
     daemon_reload: true
