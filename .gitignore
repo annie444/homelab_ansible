@@ -6,6 +6,7 @@ local_test/
 /extensions/builds/
 .vagrant
 *.tar.gz
+.ruff_cache/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
