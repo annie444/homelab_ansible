@@ -5,7 +5,7 @@
 
 namespace: "annie444"
 name: "homelab"
-version: 1.0.0
+version: 1.0.1
 readme: README.md
 authors:
   - Analetta Ehler <annie.ehler.4@gmail.com>

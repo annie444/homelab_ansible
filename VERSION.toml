@@ -1,0 +1,11 @@
+version = "1.0.1"
+
+[[files]]
+file = "galaxy.yml"
+expr = "version: (.*)"
+
+[[files]]
+file = "pyproject.toml"
+expr = 'version = "(.*)"'
+
+[package]

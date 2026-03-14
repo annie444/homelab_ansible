@@ -42,4 +42,4 @@ plugins:
       name: sample_test
       version_added: 1.0.0
   vars: {}
-version: 1.0.0
+version: 1.0.1
