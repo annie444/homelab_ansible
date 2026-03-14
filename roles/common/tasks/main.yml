@@ -10,20 +10,8 @@
     state: absent
 
 - name: Journald configuration
-  ansible.builtin.include_role:
-    name: fedora.linux_system_roles.journald
-  vars:
-    journald_persistent: "{{ common_journald_persistent | default(undef()) }}"
-    journald_max_disk_size: "{{ common_journald_max_disk_size | default(undef()) }}"
-    journald_max_file_size: "{{ common_journald_max_file_size | default(undef()) }}"
-    journald_per_user: "{{ common_journald_per_user | default(undef()) }}"
-    journald_compression: "{{ common_journald_compression | default(undef()) }}"
-    journald_sync_interval: "{{ common_journald_sync_interval | default(undef()) }}"
-    journald_forward_to_syslog: "{{ common_journald_forward_to_syslog | default(undef()) }}"
-    journald_rate_limit_interval_sec: "{{ common_journald_rate_limit_interval_sec | default(undef()) }}"
-    journald_rate_limit_burst: "{{ common_journald_rate_limit_burst | default(undef()) }}"
-    journald_keep_free: "{{ common_journald_keep_free | default(undef()) }}"
-    journald_max_retention: "{{ common_journald_max_retention | default(undef()) }}"
+  ansible.builtin.import_tasks:
+    file: journald.yml
   when: >
     common_journald_persistent is defined or
     common_journald_max_disk_size is defined or

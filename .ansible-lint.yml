@@ -116,5 +116,8 @@ task_name_prefix: "{stem} | "
 # max_block_depth: 20
 
 # Also recognize these versions of Ansible as supported:
-# supported_ansible_also:
-#   - "2.18"
+supported_ansible_also:
+  - "2.17"
+  - "2.18"
+  - "2.19"
+  - "2.20"
