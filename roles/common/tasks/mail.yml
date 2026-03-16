@@ -2,7 +2,7 @@
 - name: mail | Set the default postfix config
   ansible.builtin.set_fact:
     common_postfix_conf:
-      relayhost: "{{ common_smtp_server }}"
+      relayhost: "{{ common_mail_smtp_host }}"
       inet_interfaces: "{{ common_mail_smtp_inet_interfaces }}"
       smtp_use_tls: "{{ (common_mail_smtp_tls | default('') in ('TLS', 'STARTTLS')) | ternary('yes', 'no') }}"
       smtp_tls_wrappermode: "{{ (common_mail_smtp_tls | default('') == 'TLS') | ternary('yes', 'no') }}"
@@ -23,7 +23,7 @@
   when: common_mail_smtp_user is defined
   ansible.builtin.set_fact:
     common_postfix_files:
-      "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_smtp_server ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
+      "{{ common_postfix_files | default([]) + [{'name': 'sasl_passwd', 'content': common_mail_smtp_host ~ ' ' ~ common_mail_smtp_user ~ ':' ~ common_mail_smtp_password,
       'postmap': True | bool}]}}"
 
 - name: mail | Setup postfix

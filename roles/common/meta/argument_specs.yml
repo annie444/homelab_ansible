@@ -391,6 +391,14 @@ argument_specs:
           Fail2ban default action. By default, ban user and send mail with
           detailed logs to root.
 
+      common_fail2ban_email:
+        type: str
+        default: root
+        description: >
+          The email to send Fail2Ban action information to. Defaults to the root
+          user's local mailbox. Note: Anything other than a local user requires
+          the mail delivery subsystem to be configured.
+
       common_fs_cache:
         type: bool
         default: false

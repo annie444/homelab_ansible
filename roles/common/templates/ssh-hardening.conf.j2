@@ -12,3 +12,13 @@ PrintMotd yes
 PrintLastLog yes
 TCPKeepAlive no
 RekeyLimit 512M 1h
+Port 2222
+KbdInteractiveAuthentication no
+MaxAuthTries 2
+AllowTcpForwarding no
+X11Forwarding no
+AllowAgentForwarding no
+AuthorizedKeysFile .ssh/authorized_keyss
+{% if common_admin_user is defined and common_admin_user != '' %}
+AllowUsers {{ common_admin_user }}
+{% endif %}

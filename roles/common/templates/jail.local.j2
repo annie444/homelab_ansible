@@ -1,5 +1,9 @@
 [DEFAULT]
+bantime = 3600
+sender = fail2ban@{{ common_domain | default("example.com") }}
+destemail = {{ common_fail2ban_email }}
 action = {{ common_fail2ban_action }}
 
 [sshd]
 enabled = true
+port = ssh, 2222

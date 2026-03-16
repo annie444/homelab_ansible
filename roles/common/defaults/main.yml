@@ -38,6 +38,7 @@ common_cpu_vulnerabilities_mitigation: auto
 
 # Fail2Ban defaults
 common_fail2ban_action: "%(action_mwl)s"
+common_fail2ban_email: "root"
 
 # FS defaults
 common_fs_cache: false
